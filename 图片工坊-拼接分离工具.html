@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图片工坊 · 拼接 / 分离</title>
+<style>
+  :root{
+    --bg:#14161b; --bg2:#1b1e25; --panel:#20242d; --panel2:#262b35;
+    --line:#313845; --line2:#3c4452;
+    --ink:#e9ebef; --dim:#9aa3b0; --faint:#69707d;
+    --accent:#ffb020; --accent-d:#c8860f; --cyan:#4cc4d6;
+    --danger:#ff6b5e; --ok:#5fd38d;
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,Menlo,monospace;
+    --sans:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Noto Sans SC",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--bg);
+    background-image:
+      linear-gradient(rgba(76,196,214,.025) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(76,196,214,.025) 1px,transparent 1px);
+    background-size:26px 26px;
+    height:100vh; display:flex; flex-direction:column; overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* ---------- header ---------- */
+  header{
+    display:flex; align-items:center; gap:18px; padding:0 18px; height:54px;
+    background:linear-gradient(180deg,var(--bg2),var(--bg));
+    border-bottom:1px solid var(--line); flex-shrink:0; z-index:10;
+  }
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.5px}
+  .logo .mark{
+    width:26px;height:26px;border:2px solid var(--accent);border-radius:5px;position:relative;flex-shrink:0;
+  }
+  .logo .mark::before,.logo .mark::after{content:"";position:absolute;background:var(--accent)}
+  .logo .mark::before{left:50%;top:3px;bottom:3px;width:2px;transform:translateX(-50%)}
+  .logo .mark::after{top:50%;left:3px;right:3px;height:2px;transform:translateY(-50%)}
+  .logo small{font-family:var(--mono);font-size:10px;color:var(--faint);font-weight:400;letter-spacing:1px}
+  .tabs{display:flex;gap:4px;margin-left:6px}
+  .tab{
+    font-family:var(--sans);font-size:14px;font-weight:600;color:var(--dim);
+    background:transparent;border:1px solid transparent;border-radius:7px;
+    padding:7px 16px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:7px;
+  }
+  .tab:hover{color:var(--ink);background:var(--panel)}
+  .tab.active{color:#1a1d23;background:var(--accent);border-color:var(--accent)}
+  .tab .ic{font-size:15px}
+  .spacer{flex:1}
+  .hint{font-family:var(--mono);font-size:11px;color:var(--faint)}
+  /* ---------- layout ---------- */
+  main{flex:1;display:flex;min-height:0}
+  .side{
+    width:312px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--line);
+    overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;
+  }
+  .stage{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg)}
+  /* ---------- controls ---------- */
+  .group{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .group>.gh{
+    display:flex;align-items:center;gap:8px;padding:9px 12px;
+    font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);
+    background:var(--panel2);border-bottom:1px solid var(--line);
+  }
+  .gh .num{font-family:var(--mono);color:var(--accent);font-size:11px}
+  .gb{padding:12px}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .row:last-child{margin-bottom:0}
+  .row label{font-size:12.5px;color:var(--dim);flex-shrink:0;min-width:60px}
+  .preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .preset{
+    display:flex;flex-direction:column;align-items:center;gap:7px;padding:11px 6px;
+    background:var(--bg2);border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:.15s;
+  }
+  .preset:hover{border-color:var(--line2);background:var(--panel2)}
+  .preset.active{border-color:var(--accent);background:rgba(255,176,32,.08)}
+  .preset svg{width:34px;height:26px}
+  .preset span{font-size:11.5px;color:var(--dim)}
+  .preset.active span{color:var(--accent)}
+  select,input[type=text],input[type=number]{
+    font-family:var(--sans);font-size:13px;color:var(--ink);background:var(--bg);
+    border:1px solid var(--line);border-radius:7px;padding:7px 9px;width:100%;outline:none;transition:.15s;
+  }
+  input[type=number]{font-family:var(--mono)}
+  select:focus,input:focus{border-color:var(--accent)}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:4px;background:var(--line);border-radius:3px;width:100%;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg)}
+  input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg)}
+  .val{font-family:var(--mono);font-size:12px;color:var(--accent);min-width:46px;text-align:right;flex-shrink:0}
+  input[type=color]{-webkit-appearance:none;appearance:none;width:34px;height:30px;border:1px solid var(--line);border-radius:6px;background:none;cursor:pointer;padding:0;flex-shrink:0}
+  input[type=color]::-webkit-color-swatch-wrapper{padding:2px}
+  input[type=color]::-webkit-color-swatch{border:none;border-radius:4px}
+  .seg{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:2px;gap:2px}
+  .seg button{flex:1;font-family:var(--sans);font-size:12px;color:var(--dim);background:none;border:none;border-radius:5px;padding:6px 4px;cursor:pointer;transition:.12s}
+  .seg button.on{background:var(--accent);color:#1a1d23;font-weight:600}
+  .seg button:not(.on):hover{color:var(--ink)}
+  .chk{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;color:var(--dim);user-select:none}
+  .chk input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+  .btn{
+    font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink);
+    background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 12px;
+    cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;
+  }
+  .btn:hover{border-color:var(--line2);background:#2e3440}
+  .btn.primary{background:var(--accent);color:#1a1d23;border-color:var(--accent)}
+  .btn.primary:hover{background:#ffbd3d}
+  .btn.ghost{background:transparent}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn-sm{font-size:12px;padding:6px 10px;width:auto}
+  /* ---------- stage / preview ---------- */
+  .stage-head{
+    display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line);
+    flex-shrink:0;background:var(--bg2);font-size:12px;
+  }
+  .stage-head .stat{font-family:var(--mono);color:var(--dim)}
+  .stage-head .stat b{color:var(--accent);font-weight:600}
+  .preview-wrap{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:24px;position:relative}
+  .preview-wrap.drag{outline:2px dashed var(--accent);outline-offset:-12px;background:rgba(255,176,32,.04)}
+  #mergeCanvas,#splitCanvas{max-width:100%;max-height:100%;box-shadow:0 8px 40px rgba(0,0,0,.5);background-image:linear-gradient(45deg,#2a2f38 25%,transparent 25%),linear-gradient(-45deg,#2a2f38 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#2a2f38 75%),linear-gradient(-45deg,transparent 75%,#2a2f38 75%);background-size:18px 18px;background-position:0 0,0 9px,9px -9px,-9px 0}
+  .empty{text-align:center;color:var(--faint)}
+  .empty .big{width:64px;height:64px;margin:0 auto 16px;border:2px dashed var(--line2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px}
+  .empty h3{color:var(--dim);font-weight:600;font-size:15px;margin-bottom:6px}
+  .empty p{font-size:12.5px;line-height:1.7}
+  .empty kbd{font-family:var(--mono);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:11px;color:var(--dim)}
+  /* ---------- filmstrip (merge) ---------- */
+  .strip{
+    flex-shrink:0;border-top:1px solid var(--line);background:var(--bg2);
+    padding:10px 12px;display:flex;gap:10px;align-items:center;overflow-x:auto;min-height:104px;
+  }
+  .thumb{
+    position:relative;flex-shrink:0;width:78px;height:78px;border-radius:8px;overflow:hidden;
+    border:1px solid var(--line);background:var(--panel);cursor:grab;transition:.12s;
+  }
+  .thumb.dragging{opacity:.4}
+  .thumb.over{border-color:var(--accent);transform:scale(1.04)}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+  .thumb .idx{position:absolute;top:3px;left:3px;font-family:var(--mono);font-size:10px;background:rgba(0,0,0,.65);color:var(--accent);padding:1px 5px;border-radius:4px}
+  .thumb .ops{position:absolute;bottom:0;left:0;right:0;display:flex;background:rgba(0,0,0,.72);opacity:0;transition:.12s}
+  .thumb:hover .ops{opacity:1}
+  .thumb .ops button{flex:1;background:none;border:none;color:var(--ink);font-size:12px;padding:4px 0;cursor:pointer}
+  .thumb .ops button:hover{background:var(--accent);color:#1a1d23}
+  .thumb .ops button.del:hover{background:var(--danger);color:#fff}
+  .addtile{
+    flex-shrink:0;width:78px;height:78px;border-radius:8px;border:1.5px dashed var(--line2);
+    background:transparent;color:var(--dim);font-size:26px;cursor:pointer;transition:.15s;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  }
+  .addtile:hover{border-color:var(--accent);color:var(--accent)}
+  .addtile small{font-size:10px}
+  /* ---------- split tiles ---------- */
+  .splitEdit{position:relative;display:inline-block;line-height:0;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+  .splitEdit img{display:block;max-width:100%;max-height:62vh;user-select:none;-webkit-user-drag:none}
+  .cutline{position:absolute;z-index:5}
+  .cutline.v{top:0;bottom:0;width:2px;background:var(--accent);cursor:ew-resize;margin-left:-1px}
+  .cutline.h{left:0;right:0;height:2px;background:var(--accent);cursor:ns-resize;margin-top:-1px}
+  .cutline .grip{position:absolute;background:var(--accent);color:#1a1d23;font-family:var(--mono);font-size:9px;border-radius:3px;padding:1px 4px;white-space:nowrap}
+  .cutline.v .grip{top:6px;left:3px}
+  .cutline.h .grip{left:6px;top:3px}
+  .cutline .x{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--danger);color:#fff;font-size:11px;line-height:16px;text-align:center;cursor:pointer;border:1px solid var(--bg)}
+  .cutline.v .x{top:50%;left:-7px;transform:translateY(-50%)}
+  .cutline.h .x{left:50%;top:-7px;transform:translateX(-50%)}
+  .gridoverlay{position:absolute;inset:0;pointer-events:none;z-index:4}
+  .gridoverlay line{stroke:var(--cyan);stroke-width:1;stroke-dasharray:5 4;opacity:.85}
+  .tiles{display:grid;gap:8px;padding:14px 16px 4px;align-content:start}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative}
+  .tile img{width:100%;display:block;background:#2a2f38}
+  .tile .tb{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;font-family:var(--mono);font-size:10px;color:var(--dim)}
+  .tile .tb button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:14px;padding:0 2px}
+  .tile .tn{position:absolute;top:5px;left:5px;font-family:var(--mono);font-size:10px;background:rgba(0,0,0,.7);color:var(--accent);padding:1px 6px;border-radius:4px}
+  /* scrollbars + toast */
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);border:1px solid var(--line2);color:var(--ink);padding:11px 20px;border-radius:9px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:99;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast.ok{border-color:var(--ok)} #toast.err{border-color:var(--danger)}
+  .hidden{display:none!important}
+  .splitScroll{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;padding:20px;position:relative;min-height:0}
+  .splitScroll.drag{outline:2px dashed var(--accent);outline-offset:-12px;background:rgba(255,176,32,.04)}
+  #splitMain{width:100%;display:flex;flex-direction:column;align-items:center}
+  .thumb.active{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan)}
+  .thumb .nm{position:absolute;bottom:0;left:0;right:0;font-size:9px;font-family:var(--mono);background:rgba(0,0,0,.6);color:var(--dim);padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .thumb:hover .nm{display:none}
+  .divider{height:1px;background:var(--line);margin:2px 0}
+  .tip{font-size:11px;color:var(--faint);line-height:1.55;margin-top:2px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><div class="mark"></div><div>图片工坊<br><small>LOCAL · OFFLINE · CANVAS</small></div></div>
+  <div class="tabs">
+    <button class="tab active" data-mode="merge"><span class="ic">▦</span>拼接 · 多合一</button>
+    <button class="tab" data-mode="split"><span class="ic">▤</span>分离 · 一变多</button>
+  </div>
+  <div class="spacer"></div>
+  <div class="hint">所有处理在本机完成 · 不联网 · 不上传</div>
+</header>
+
+<main>
+  <!-- ============ MERGE SIDEBAR ============ -->
+  <aside class="side" id="mergeSide">
+    <div class="group">
+      <div class="gh"><span class="num">01</span>布局预设</div>
+      <div class="gb">
+        <div class="preset-grid" id="layoutPresets">
+          <div class="preset active" data-layout="hrow">
+            <svg viewBox="0 0 40 30"><rect x="2" y="6" width="10" height="18" fill="#ffb020"/><rect x="15" y="6" width="10" height="18" fill="#6b7280"/><rect x="28" y="6" width="10" height="18" fill="#6b7280"/></svg>
+            <span>横向一排</span>
+          </div>
+          <div class="preset" data-layout="vcol">
+            <svg viewBox="0 0 40 30"><rect x="10" y="2" width="20" height="6" fill="#ffb020"/><rect x="10" y="10" width="20" height="6" fill="#6b7280"/><rect x="10" y="18" width="20" height="6" fill="#6b7280"/></svg>
+            <span>纵向一列</span>
+          </div>
+          <div class="preset" data-layout="grid">
+            <svg viewBox="0 0 40 30"><rect x="6" y="4" width="12" height="10" fill="#ffb020"/><rect x="22" y="4" width="12" height="10" fill="#6b7280"/><rect x="6" y="17" width="12" height="10" fill="#6b7280"/><rect x="22" y="17" width="12" height="10" fill="#6b7280"/></svg>
+            <span>网格矩阵</span>
+          </div>
+          <div class="preset" data-layout="auto">
+            <svg viewBox="0 0 40 30"><rect x="4" y="4" width="14" height="22" fill="#ffb020"/><rect x="21" y="4" width="15" height="10" fill="#6b7280"/><rect x="21" y="17" width="15" height="9" fill="#6b7280"/></svg>
+            <span>自动铺排</span>
+          </div>
+        </div>
+        <div class="row" id="gridDimRow" style="margin-top:10px;display:none">
+          <label>行 × 列</label>
+          <input type="number" id="gridRows" value="0" min="0" max="20" placeholder="行" style="flex:1">
+          <span style="color:var(--faint)">×</span>
+          <input type="number" id="gridCols" value="2" min="0" max="20" placeholder="列" style="flex:1">
+        </div>
+        <p class="tip" id="gridDimTip" style="display:none">填 <b>0</b> 表示自动。只填行或只填列，另一个按图片数自动计算。</p>
+        <div class="divider" id="ordDivider" style="display:none"></div>
+        <div class="row" id="ordRowWrap" style="display:none"><label>置入顺序</label>
+          <div class="seg" id="ordRowSeg">
+            <button data-d="lr" class="on">从左到右</button>
+            <button data-d="rl">从右到左</button>
+          </div>
+        </div>
+        <div class="row" id="ordColWrap" style="display:none"><label>置入顺序</label>
+          <div class="seg" id="ordColSeg">
+            <button data-d="tb" class="on">从上到下</button>
+            <button data-d="bt">从下到上</button>
+          </div>
+        </div>
+        <div class="row" id="ordGridWrap" style="display:none;align-items:flex-start"><label style="padding-top:7px">置入<br>顺序</label>
+          <select id="ordGridSel">
+            <option value="r_rl_tb">①先按行(右→左) 后按列(上→下)</option>
+            <option value="r_rl_bt">②先按行(右→左) 后按列(下→上)</option>
+            <option value="r_lr_tb" selected>③先按行(左→右) 后按列(上→下)</option>
+            <option value="r_lr_bt">④先按行(左→右) 后按列(下→上)</option>
+            <option value="c_tb_rl">⑤先按列(上→下) 后按行(右→左)</option>
+            <option value="c_tb_lr">⑥先按列(上→下) 后按行(左→右)</option>
+            <option value="c_bt_rl">⑦先按列(下→上) 后按行(右→左)</option>
+            <option value="c_bt_lr">⑧先按列(下→上) 后按行(左→右)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="gh"><span class="num">02</span>尺寸统一</div>
+      <div class="gb">
+        <div class="row"><label>对齐方式</label>
+          <select id="sizeMode">
+            <option value="height">统一高度（适合横排）</option>
+            <option value="width">统一宽度（适合竖排/长图）</option>
+            <option value="cell">统一单元格（适合网格）</option>
+            <option value="none">保持原始尺寸</option>
+          </select>
+        </div>
+        <div class="row"><label>基准</label>
+          <select id="refMode">
+            <option value="min">以最小图为准（更清晰）</option>
+            <option value="max">以最大图为准</option>
+            <option value="first">以第一张为准</option>
+          </select>
+        </div>
+        <div class="row" id="fitRow"><label>填充</label>
+          <div class="seg" id="fitSeg">
+            <button data-fit="contain" class="on">完整(留白)</button>
+            <button data-fit="cover">填满(裁切)</button>
+            <button data-fit="fill">拉伸</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="gh"><span class="num">03</span>排版参数</div>
+      <div class="gb">
+        <div class="row"><label>间距</label><input type="range" id="gap" min="0" max="120" value="0"><span class="val" id="gapV">0px</span></div>
+        <div class="row"><label>外边距</label><input type="range" id="pad" min="0" max="200" value="0"><span class="val" id="padV">0px</span></div>
+        <div class="row"><label>圆角</label><input type="range" id="radius" min="0" max="80" value="0"><span class="val" id="radiusV">0px</span></div>
+        <div class="divider"></div>
+        <div class="row"><label>背景色</label>
+          <input type="color" id="bgColor" value="#ffffff">
+          <label class="chk" style="min-width:auto"><input type="checkbox" id="bgTrans">透明</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="gh"><span class="num">04</span>导出</div>
+      <div class="gb">
+        <div class="row"><label>格式</label>
+          <div class="seg" id="fmtSeg">
+            <button data-fmt="png" class="on">PNG</button>
+            <button data-fmt="jpeg">JPG</button>
+          </div>
+        </div>
+        <div class="row" id="qualRow" style="display:none"><label>质量</label><input type="range" id="quality" min="50" max="100" value="92"><span class="val" id="qualV">92</span></div>
+        <button class="btn primary" id="exportMerge">⬇ 导出拼接图</button>
+      </div>
+    </div>
+    <button class="btn ghost" id="clearMerge">清空全部图片</button>
+  </aside>
+
+  <!-- ============ SPLIT SIDEBAR ============ -->
+  <aside class="side hidden" id="splitSide">
+    <div class="group">
+      <div class="gh"><span class="num">01</span>图片源</div>
+      <div class="gb">
+        <div class="row" style="gap:8px">
+          <button class="btn btn-sm" id="addFolderBtn" style="flex:1">📁 选择文件夹</button>
+          <button class="btn btn-sm" id="addFilesBtn" style="flex:1">＋ 逐张添加</button>
+        </div>
+        <p class="tip">文件夹：自动加载其中所有图片，按<b>文件名</b>排序。逐张添加：按<b>加入顺序</b>排列。可混用，底部缩略图条可拖动改顺序。</p>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="gh"><span class="num">02</span>切割模式<span class="tip" style="margin:0;font-weight:400;text-transform:none;letter-spacing:0">·应用到全部</span></div>
+      <div class="gb">
+        <div class="row"><label>模式</label>
+          <select id="splitMode">
+            <option value="grid">等分网格（行×列）</option>
+            <option value="hcut">横向切 N 份</option>
+            <option value="vcut">竖向切 N 份</option>
+            <option value="size">按固定尺寸切块</option>
+            <option value="free">自定义切线（每图独立）</option>
+          </select>
+        </div>
+        <div id="paramGrid">
+          <div class="row"><label>行数</label><input type="number" id="rows" value="2" min="1" max="50"></div>
+          <div class="row"><label>列数</label><input type="number" id="cols" value="2" min="1" max="50"></div>
+        </div>
+        <div id="paramN" style="display:none">
+          <div class="row"><label>份数</label><input type="number" id="nParts" value="3" min="2" max="100"></div>
+        </div>
+        <div id="paramSize" style="display:none">
+          <div class="row"><label>块宽</label><input type="number" id="tileW" value="500" min="10"><span class="tip" style="margin:0">px</span></div>
+          <div class="row"><label>块高</label><input type="number" id="tileH" value="500" min="10"><span class="tip" style="margin:0">px</span></div>
+          <p class="tip">不足一块的边缘也会单独切出。</p>
+        </div>
+        <div id="paramFree" style="display:none">
+          <div class="row" style="gap:6px">
+            <button class="btn btn-sm" id="addV">+ 竖切线</button>
+            <button class="btn btn-sm" id="addH">+ 横切线</button>
+          </div>
+          <button class="btn btn-sm ghost" id="clearLines" style="width:100%;margin-top:6px">清空当前图切线</button>
+          <p class="tip">切线针对<b>当前预览的图</b>，每张图各自记忆。拖动调整、点红 × 删除。适合拼版扫描、漫画分格等不规则版面。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="gh"><span class="num">03</span>输出</div>
+      <div class="gb">
+        <div class="row"><label>文件名</label><input type="text" id="namePrefix" value="切图" placeholder="可留空，仅编号"></div>
+        <div class="row"><label>起始号</label>
+          <input type="number" id="startNum" value="1" min="0" style="flex:0 0 70px">
+          <span class="tip" style="margin:0">补零位数</span>
+          <input type="number" id="padLen" value="4" min="1" max="8" style="flex:0 0 56px">
+        </div>
+        <div class="row" style="align-items:flex-start"><label style="padding-top:7px">编号<br>顺序</label>
+          <select id="orderSel">
+            <option value="r_rl_tb">①先按行(右→左) 后按列(上→下)</option>
+            <option value="r_rl_bt">②先按行(右→左) 后按列(下→上)</option>
+            <option value="r_lr_tb" selected>③先按行(左→右) 后按列(上→下)</option>
+            <option value="r_lr_bt">④先按行(左→右) 后按列(下→上)</option>
+            <option value="c_tb_rl">⑤先按列(上→下) 后按行(右→左)</option>
+            <option value="c_tb_lr">⑥先按列(上→下) 后按行(左→右)</option>
+            <option value="c_bt_rl">⑦先按列(下→上) 后按行(右→左)</option>
+            <option value="c_bt_lr">⑧先按列(下→上) 后按行(左→右)</option>
+          </select>
+        </div>
+        <div class="row"><label>格式</label>
+          <div class="seg" id="sfmtSeg">
+            <button data-fmt="png" class="on">PNG</button>
+            <button data-fmt="jpeg">JPG</button>
+          </div>
+        </div>
+        <div class="row"><label>下载方式</label>
+          <div class="seg" id="dlSeg">
+            <button data-dl="zip" class="on">打包 ZIP</button>
+            <button data-dl="each">逐张下载</button>
+          </div>
+        </div>
+        <button class="btn primary" id="exportAll" style="margin-top:4px">⬇ 导出全部切块</button>
+        <p class="tip">多张图按缩略图条顺序<b>连续编号</b>。<b>打包 ZIP</b>：上百张也只下载一个压缩包，解压即得全部图片（推荐）。逐张下载适合数量很少时。</p>
+      </div>
+    </div>
+    <button class="btn ghost" id="clearSplit">清空全部图片</button>
+  </aside>
+
+  <!-- ============ STAGE ============ -->
+  <section class="stage">
+    <!-- MERGE STAGE -->
+    <div id="mergeStage" style="display:flex;flex-direction:column;flex:1;min-height:0">
+      <div class="stage-head">
+        <span class="stat">图片 <b id="mCount">0</b> 张</span>
+        <span class="stat">成图 <b id="mSize">—</b></span>
+        <div class="spacer"></div>
+        <span class="hint">拖动下方缩略图可调整顺序</span>
+      </div>
+      <div class="preview-wrap" id="mergeDrop">
+        <div class="empty" id="mergeEmpty">
+          <div class="big">＋</div>
+          <h3>添加图片开始拼接</h3>
+          <p>点击下方 ＋，或把图片<b>拖进来</b>，或直接 <kbd>Ctrl</kbd>+<kbd>V</kbd> 粘贴</p>
+        </div>
+        <canvas id="mergeCanvas" class="hidden"></canvas>
+      </div>
+      <div class="strip" id="strip">
+        <button class="addtile" id="addImgBtn">＋<small>添加</small></button>
+      </div>
+    </div>
+
+    <!-- SPLIT STAGE -->
+    <div id="splitStage" style="display:none;flex-direction:column;flex:1;min-height:0">
+      <div class="stage-head">
+        <span class="stat">图片 <b id="sImgCount">0</b> 张</span>
+        <span class="stat">当前 <b id="sDim">—</b></span>
+        <span class="stat">共切出 <b id="sCount">0</b> 块</span>
+        <div class="spacer"></div>
+        <span class="hint" id="splitHint">添加图片开始</span>
+      </div>
+      <div class="splitScroll" id="splitDrop">
+        <div class="empty" id="splitEmpty">
+          <div class="big">▤</div>
+          <h3>添加图片开始切分</h3>
+          <p>点左侧「选择文件夹 / 逐张添加」，或把图片<b>拖进来</b>，或 <kbd>Ctrl</kbd>+<kbd>V</kbd> 粘贴（可多张）</p>
+        </div>
+        <div id="splitMain" class="hidden">
+          <div class="splitEdit" id="splitEdit">
+            <img id="splitImg" alt="">
+            <svg class="gridoverlay" id="gridOverlay"></svg>
+          </div>
+          <div class="tiles" id="tiles"></div>
+        </div>
+      </div>
+      <div class="strip" id="srcStrip">
+        <button class="addtile" id="addImgBtn2">＋<small>添加</small></button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<input type="file" id="fileMerge" accept="image/*" multiple class="hidden">
+<input type="file" id="fileSplit" accept="image/*" multiple class="hidden">
+<input type="file" id="fileFolder" accept="image/*" multiple webkitdirectory class="hidden">
+<canvas id="work" class="hidden"></canvas>
+<div id="toast"></div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+function toast(msg,type){const t=$("#toast");t.textContent=msg;t.className="show "+(type||"");setTimeout(()=>t.className="",2200);}
+function loadImage(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src;});}
+function readFiles(files){return Promise.all([...files].filter(f=>f.type.startsWith("image/")).map(f=>new Promise(res=>{const r=new FileReader();r.onload=e=>loadImage(e.target.result).then(img=>res({img,name:f.name})).catch(()=>res(null));r.readAsDataURL(f);})));}
+const ts=()=>{const d=new Date(),p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;};
+
+/* ===================== MODE SWITCH ===================== */
+let mode="merge";
+$$(".tab").forEach(t=>t.onclick=()=>{
+  mode=t.dataset.mode;
+  $$(".tab").forEach(x=>x.classList.toggle("active",x===t));
+  $("#mergeSide").classList.toggle("hidden",mode!=="merge");
+  $("#splitSide").classList.toggle("hidden",mode!=="split");
+  $("#mergeStage").style.display=mode==="merge"?"flex":"none";
+  $("#splitStage").style.display=mode==="split"?"flex":"none";
+});
+
+/* ===================== MERGE ===================== */
+const M={imgs:[],layout:"hrow",sizeMode:"height",refMode:"min",fit:"contain",gap:0,pad:0,radius:0,bg:"#ffffff",trans:false,fmt:"png",quality:92,orderRow:"lr",orderCol:"tb",orderGrid:"r_lr_tb"};
+
+function mAdd(items){items.filter(Boolean).forEach(it=>M.imgs.push({img:it.img,rot:0}));mRender();}
+$("#fileMerge").onchange=e=>{readFiles(e.target.files).then(mAdd);e.target.value="";};
+$("#addImgBtn").onclick=()=>$("#fileMerge").click();
+$("#clearMerge").onclick=()=>{M.imgs=[];mRender();};
+
+// layout presets
+function updateMergeOrderUI(){
+  const isGrid=M.layout==="grid"||M.layout==="auto";
+  $("#gridDimRow").style.display=M.layout==="grid"?"flex":"none";
+  $("#gridDimTip").style.display=M.layout==="grid"?"block":"none";
+  $("#ordRowWrap").style.display=M.layout==="hrow"?"flex":"none";
+  $("#ordColWrap").style.display=M.layout==="vcol"?"flex":"none";
+  $("#ordGridWrap").style.display=isGrid?"flex":"none";
+  $("#ordDivider").style.display="block";
+}
+$$("#layoutPresets .preset").forEach(p=>p.onclick=()=>{
+  $$("#layoutPresets .preset").forEach(x=>x.classList.toggle("active",x===p));
+  M.layout=p.dataset.layout;
+  // smart defaults
+  if(M.layout==="hrow"){M.sizeMode="height";$("#sizeMode").value="height";}
+  else if(M.layout==="vcol"){M.sizeMode="width";$("#sizeMode").value="width";}
+  else if(M.layout==="grid"||M.layout==="auto"){M.sizeMode="cell";$("#sizeMode").value="cell";}
+  $("#fitRow").style.display=M.sizeMode==="cell"?"flex":"none";
+  updateMergeOrderUI();
+  mRender();
+});
+$("#gridRows").oninput=mRender;
+$("#gridCols").oninput=mRender;
+$$("#ordRowSeg button").forEach(b=>b.onclick=()=>{$$("#ordRowSeg button").forEach(x=>x.classList.toggle("on",x===b));M.orderRow=b.dataset.d;mRender();});
+$$("#ordColSeg button").forEach(b=>b.onclick=()=>{$$("#ordColSeg button").forEach(x=>x.classList.toggle("on",x===b));M.orderCol=b.dataset.d;mRender();});
+$("#ordGridSel").onchange=e=>{M.orderGrid=e.target.value;mRender();};
+$("#sizeMode").onchange=e=>{M.sizeMode=e.target.value;$("#fitRow").style.display=M.sizeMode==="cell"?"flex":"none";mRender();};
+$("#refMode").onchange=e=>{M.refMode=e.target.value;mRender();};
+$$("#fitSeg button").forEach(b=>b.onclick=()=>{$$("#fitSeg button").forEach(x=>x.classList.toggle("on",x===b));M.fit=b.dataset.fit;mRender();});
+function bindRange(id,vid,suffix,key,obj){$(id).oninput=e=>{obj[key]=+e.target.value;$(vid).textContent=e.target.value+suffix;(obj===M?mRender:sRender)();};}
+bindRange("#gap","#gapV","px","gap",M);
+bindRange("#pad","#padV","px","pad",M);
+bindRange("#radius","#radiusV","px","radius",M);
+$("#bgColor").oninput=e=>{M.bg=e.target.value;mRender();};
+$("#bgTrans").onchange=e=>{M.trans=e.target.checked;mRender();};
+$$("#fmtSeg button").forEach(b=>b.onclick=()=>{$$("#fmtSeg button").forEach(x=>x.classList.toggle("on",x===b));M.fmt=b.dataset.fmt;$("#qualRow").style.display=M.fmt==="jpeg"?"flex":"none";});
+$("#quality").oninput=e=>{M.quality=+e.target.value;$("#qualV").textContent=e.target.value;};
+
+// rotated dimensions helper
+function dimOf(o){return o.rot%180?{w:o.img.height,h:o.img.width}:{w:o.img.width,h:o.img.height};}
+function drawRot(ctx,o,x,y,w,h){ // draw image possibly rotated into box x,y,w,h (box already in rotated space)
+  ctx.save();ctx.translate(x+w/2,y+h/2);ctx.rotate(o.rot*Math.PI/180);
+  const dw=o.rot%180?h:w, dh=o.rot%180?w:h;
+  ctx.drawImage(o.img,-dw/2,-dh/2,dw,dh);ctx.restore();
+}
+
+function mergeGridDims(n){
+  let R=Math.max(0,parseInt($("#gridRows").value)||0);
+  let C=Math.max(0,parseInt($("#gridCols").value)||0);
+  if(M.layout==="auto"){C=Math.ceil(Math.sqrt(n));R=Math.ceil(n/C);}
+  else{ // grid
+    if(C>0&&R>0){if(R*C<n)R=Math.ceil(n/C);}
+    else if(C>0)R=Math.ceil(n/C);
+    else if(R>0)C=Math.ceil(n/R);
+    else{C=Math.ceil(Math.sqrt(n));R=Math.ceil(n/C);}
+  }
+  return {R:Math.max(1,R),C:Math.max(1,C)};
+}
+function computeMerge(){
+  const n=M.imgs.length; if(!n)return null;
+  const ref=arr=>M.refMode==="first"?arr[0]:M.refMode==="max"?Math.max(...arr):Math.min(...arr);
+  let cells=[]; // {img,x,y,w,h, clip...}
+  const g=M.gap;
+  if(M.layout==="hrow"||M.layout==="vcol"){
+    let list=M.imgs.slice();
+    if(M.layout==="hrow"&&M.orderRow==="rl")list.reverse();
+    if(M.layout==="vcol"&&M.orderCol==="bt")list.reverse();
+    const dims=list.map(dimOf);
+    if(M.layout==="hrow"){
+      let x=0;list.forEach((o,i)=>{const d=dims[i];let w,h;
+        if(M.sizeMode==="height"){const H=ref(dims.map(q=>q.h));h=H;w=d.w*H/d.h;}
+        else if(M.sizeMode==="width"){const W=ref(dims.map(q=>q.w));w=W;h=d.h*W/d.w;}
+        else{w=d.w;h=d.h;}
+        cells.push({img:o,x,y:0,w,h});x+=w+g;});
+      const maxH=Math.max(...cells.map(c=>c.h));cells.forEach(c=>c.y=(maxH-c.h)/2);
+    }else{
+      let y=0;list.forEach((o,i)=>{const d=dims[i];let w,h;
+        if(M.sizeMode==="width"||M.sizeMode==="cell"){const W=ref(dims.map(q=>q.w));w=W;h=d.h*W/d.w;}
+        else if(M.sizeMode==="height"){const H=ref(dims.map(q=>q.h));h=H;w=d.w*H/d.h;}
+        else{w=d.w;h=d.h;}
+        cells.push({img:o,x:0,y,w,h});y+=h+g;});
+      const maxW=Math.max(...cells.map(c=>c.w));cells.forEach(c=>c.x=(maxW-c.w)/2);
+    }
+  }else{ // grid / auto
+    const {R,C}=mergeGridDims(n);
+    const dims=M.imgs.map(dimOf);
+    const cw=ref(dims.map(d=>d.w)), ch=ref(dims.map(d=>d.h));
+    const seq=orderPairs(M.orderGrid,R,C);
+    M.imgs.forEach((o,k)=>{
+      const pos=seq[k]; if(!pos)return;
+      const r=pos[0],c=pos[1];
+      const cellX=c*(cw+g), cellY=r*(ch+g);
+      let w,h,d=dims[k];
+      if(M.fit==="fill"){w=cw;h=ch;}
+      else if(M.fit==="cover"){const s=Math.max(cw/d.w,ch/d.h);w=d.w*s;h=d.h*s;}
+      else{const s=Math.min(cw/d.w,ch/d.h);w=d.w*s;h=d.h*s;} // contain
+      cells.push({img:o,x:cellX+(cw-w)/2,y:cellY+(ch-h)/2,w,h,clipX:cellX,clipY:cellY,cw,ch});
+    });
+  }
+  const contentW=Math.max(...cells.map(c=>c.x+c.w));
+  const contentH=Math.max(...cells.map(c=>c.y+c.h));
+  return {cells,W:Math.round(contentW+M.pad*2),H:Math.round(contentH+M.pad*2)};
+}
+
+function mRender(){
+  const cv=$("#mergeCanvas"), n=M.imgs.length;
+  $("#mCount").textContent=n;
+  renderStrip();
+  if(!n){cv.classList.add("hidden");$("#mergeEmpty").classList.remove("hidden");$("#mSize").textContent="—";return;}
+  $("#mergeEmpty").classList.add("hidden");cv.classList.remove("hidden");
+  const L=computeMerge();
+  cv.width=L.W;cv.height=L.H;
+  const ctx=cv.getContext("2d");ctx.clearRect(0,0,L.W,L.H);
+  if(!M.trans){ctx.fillStyle=M.bg;ctx.fillRect(0,0,L.W,L.H);}
+  ctx.imageSmoothingQuality="high";
+  L.cells.forEach((c)=>{
+    const x=c.x+M.pad, y=c.y+M.pad;
+    ctx.save();
+    if(M.radius>0){const r=Math.min(M.radius,c.w/2,c.h/2);roundRect(ctx,x,y,c.w,c.h,r);ctx.clip();}
+    else if(c.clipX!=null&&M.fit==="cover"){roundRect(ctx,c.clipX+M.pad,c.clipY+M.pad,c.cw,c.ch,0);ctx.clip();}
+    drawRot(ctx,c.img,x,y,c.w,c.h);
+    ctx.restore();
+  });
+  $("#mSize").textContent=L.W+"×"+L.H;
+}
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+// filmstrip with drag reorder
+let dragIdx=null;
+function renderStrip(){
+  const strip=$("#strip");
+  [...strip.querySelectorAll(".thumb")].forEach(t=>t.remove());
+  const addBtn=$("#addImgBtn");
+  M.imgs.forEach((o,i)=>{
+    const t=document.createElement("div");t.className="thumb";t.draggable=true;
+    t.innerHTML=`<span class="idx">${i+1}</span><img src="${o.img.src}" style="transform:rotate(${o.rot}deg)">
+      <div class="ops"><button data-a="rot" title="旋转">⟳</button><button data-a="dup" title="复制">⧉</button><button data-a="del" class="del" title="删除">✕</button></div>`;
+    t.querySelector('[data-a=rot]').onclick=ev=>{ev.stopPropagation();o.rot=(o.rot+90)%360;mRender();};
+    t.querySelector('[data-a=dup]').onclick=ev=>{ev.stopPropagation();M.imgs.splice(i+1,0,{img:o.img,rot:o.rot});mRender();};
+    t.querySelector('[data-a=del]').onclick=ev=>{ev.stopPropagation();M.imgs.splice(i,1);mRender();};
+    t.ondragstart=()=>{dragIdx=i;t.classList.add("dragging");};
+    t.ondragend=()=>{t.classList.remove("dragging");$$(".thumb").forEach(x=>x.classList.remove("over"));};
+    t.ondragover=ev=>{ev.preventDefault();t.classList.add("over");};
+    t.ondragleave=()=>t.classList.remove("over");
+    t.ondrop=ev=>{ev.preventDefault();if(dragIdx===null||dragIdx===i)return;const moved=M.imgs.splice(dragIdx,1)[0];M.imgs.splice(i,0,moved);dragIdx=null;mRender();};
+    strip.insertBefore(t,addBtn);
+  });
+}
+
+$("#exportMerge").onclick=()=>{
+  if(!M.imgs.length)return toast("请先添加图片","err");
+  const cv=$("#mergeCanvas");
+  if(M.fmt==="jpeg"&&M.trans){/* jpeg no alpha */}
+  let out=cv;
+  if(M.fmt==="jpeg"){const tmp=document.createElement("canvas");tmp.width=cv.width;tmp.height=cv.height;const c=tmp.getContext("2d");c.fillStyle=M.trans?"#ffffff":M.bg;c.fillRect(0,0,cv.width,cv.height);c.drawImage(cv,0,0);out=tmp;}
+  const url=out.toDataURL(M.fmt==="png"?"image/png":"image/jpeg",M.quality/100);
+  download(url,`拼接_${ts()}.${M.fmt==="png"?"png":"jpg"}`);
+  toast("已导出拼接图","ok");
+};
+function download(url,name){const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();}
+
+/* ===================== SPLIT (multi-image) ===================== */
+const S={list:[],active:0,mode:"grid",order:"r_lr_tb",fmt:"png"};
+// 8 编号方式：p=主序(row先排行/col先排列) h=水平方向 v=垂直方向
+const ORD={
+  r_rl_tb:{p:"row",h:"rl",v:"tb"}, r_rl_bt:{p:"row",h:"rl",v:"bt"},
+  r_lr_tb:{p:"row",h:"lr",v:"tb"}, r_lr_bt:{p:"row",h:"lr",v:"bt"},
+  c_tb_rl:{p:"col",h:"rl",v:"tb"}, c_tb_lr:{p:"col",h:"lr",v:"tb"},
+  c_bt_rl:{p:"col",h:"rl",v:"bt"}, c_bt_lr:{p:"col",h:"lr",v:"bt"},
+};
+const activeItem=()=>S.list[S.active]||null;
+
+// ---- inputs ----
+$("#addFilesBtn").onclick=()=>$("#fileSplit").click();
+$("#addImgBtn2").onclick=()=>$("#fileSplit").click();
+$("#addFolderBtn").onclick=()=>$("#fileFolder").click();
+$("#splitEmpty").onclick=()=>$("#fileSplit").click();
+$("#fileSplit").onchange=e=>{readFiles(e.target.files).then(r=>addSplitImages(r,false));e.target.value="";};
+$("#fileFolder").onchange=e=>{readFiles(e.target.files).then(r=>addSplitImages(r,true));e.target.value="";};
+$("#clearSplit").onclick=()=>{S.list=[];S.active=0;splitRefresh();};
+
+function addSplitImages(items,sortByName){
+  let batch=items.filter(Boolean);
+  if(sortByName)batch=batch.sort((a,b)=>(a.name||"").localeCompare(b.name||"",undefined,{numeric:true,sensitivity:"base"}));
+  const wasEmpty=S.list.length===0;
+  batch.forEach(it=>S.list.push({img:it.img,name:it.name||"image",vlines:[],hlines:[]}));
+  if(wasEmpty)S.active=0;
+  splitRefresh();
+}
+
+function splitRefresh(){
+  const has=S.list.length>0;
+  $("#splitEmpty").classList.toggle("hidden",has);
+  $("#splitMain").classList.toggle("hidden",!has);
+  $("#sImgCount").textContent=S.list.length;
+  renderSrcStrip();
+  if(has){if(S.active>=S.list.length)S.active=S.list.length-1;showActive();}
+  else{$("#sDim").textContent="—";$("#sCount").textContent="0";$("#splitHint").textContent="添加图片开始";}
+}
+function showActive(){
+  const it=activeItem();if(!it)return;
+  const img=$("#splitImg");
+  if(img.getAttribute("src")!==it.img.src){img.src=it.img.src;}
+  if(img.complete)requestAnimationFrame(sRender);
+  $("#sDim").textContent=it.img.naturalWidth+"×"+it.img.naturalHeight;
+}
+
+// ---- source filmstrip (select / reorder / delete) ----
+let sDragIdx=null;
+function renderSrcStrip(){
+  const strip=$("#srcStrip");
+  [...strip.querySelectorAll(".thumb")].forEach(t=>t.remove());
+  const addBtn=$("#addImgBtn2");
+  S.list.forEach((it,i)=>{
+    const t=document.createElement("div");t.className="thumb"+(i===S.active?" active":"");t.draggable=true;
+    t.innerHTML=`<span class="idx">${i+1}</span><img src="${it.img.src}"><span class="nm">${it.name}</span>
+      <div class="ops"><button data-a="del" class="del" title="移除">✕</button></div>`;
+    t.onclick=()=>{S.active=i;renderSrcStrip();showActive();};
+    t.querySelector('[data-a=del]').onclick=ev=>{ev.stopPropagation();S.list.splice(i,1);if(S.active>=i&&S.active>0)S.active--;splitRefresh();};
+    t.ondragstart=()=>{sDragIdx=i;t.classList.add("dragging");};
+    t.ondragend=()=>{t.classList.remove("dragging");strip.querySelectorAll(".thumb").forEach(x=>x.classList.remove("over"));};
+    t.ondragover=ev=>{ev.preventDefault();t.classList.add("over");};
+    t.ondragleave=()=>t.classList.remove("over");
+    t.ondrop=ev=>{ev.preventDefault();if(sDragIdx===null||sDragIdx===i)return;const cur=S.list[S.active];const moved=S.list.splice(sDragIdx,1)[0];S.list.splice(i,0,moved);S.active=S.list.indexOf(cur);sDragIdx=null;splitRefresh();};
+    strip.insertBefore(t,addBtn);
+  });
+}
+
+// ---- mode / param bindings ----
+$("#splitMode").onchange=e=>{S.mode=e.target.value;
+  $("#paramGrid").style.display=S.mode==="grid"?"block":"none";
+  $("#paramN").style.display=(S.mode==="hcut"||S.mode==="vcut")?"block":"none";
+  $("#paramSize").style.display=S.mode==="size"?"block":"none";
+  $("#paramFree").style.display=S.mode==="free"?"block":"none";
+  sRender();};
+["#rows","#cols","#nParts","#tileW","#tileH","#startNum","#padLen"].forEach(id=>$(id).oninput=sRender);
+$("#orderSel").onchange=e=>{S.order=e.target.value;sRender();};
+$("#namePrefix").oninput=sRender;
+$$("#sfmtSeg button").forEach(b=>b.onclick=()=>{$$("#sfmtSeg button").forEach(x=>x.classList.toggle("on",x===b));S.fmt=b.dataset.fmt;sRender();});
+$("#addV").onclick=()=>{const it=activeItem();if(!it)return;it.vlines.push(0.5);it.vlines.sort((a,b)=>a-b);sRender();};
+$("#addH").onclick=()=>{const it=activeItem();if(!it)return;it.hlines.push(0.5);it.hlines.sort((a,b)=>a-b);sRender();};
+$("#clearLines").onclick=()=>{const it=activeItem();if(!it)return;it.vlines=[];it.hlines=[];sRender();};
+
+// ---- cut geometry ----
+function cutFractions(item){
+  let xs=[0,1],ys=[0,1];const W=item.img.naturalWidth,H=item.img.naturalHeight;
+  if(S.mode==="grid"){xs=lin(Math.max(1,+$("#cols").value||1));ys=lin(Math.max(1,+$("#rows").value||1));}
+  else if(S.mode==="vcut"){xs=lin(Math.max(2,+$("#nParts").value||2));}
+  else if(S.mode==="hcut"){ys=lin(Math.max(2,+$("#nParts").value||2));}
+  else if(S.mode==="size"){xs=byPx(W,Math.max(1,+$("#tileW").value||1));ys=byPx(H,Math.max(1,+$("#tileH").value||1));}
+  else if(S.mode==="free"){xs=[0,...item.vlines.filter(v=>v>0&&v<1),1].sort((a,b)=>a-b);ys=[0,...item.hlines.filter(v=>v>0&&v<1),1].sort((a,b)=>a-b);}
+  return {xs:dedupe(xs),ys:dedupe(ys)};
+}
+function lin(n){const a=[];for(let i=0;i<=n;i++)a.push(i/n);return a;}
+function byPx(total,step){const a=[0];let p=step;while(p<total){a.push(p/total);p+=step;}a.push(1);return a;}
+function dedupe(a){return a.filter((v,i)=>i===0||v-a[i-1]>0.0005);}
+function range(a,b){const s=a<b?1:-1,o=[];for(let i=a;i!==b;i+=s)o.push(i);return o;}
+
+// 按指定编号方式排出 (r,c) 顺序
+function orderPairs(order,R,C){
+  const sp=ORD[order]||ORD.r_lr_tb;
+  const rowSeq=sp.v==="tb"?range(0,R):range(R-1,-1);
+  const colSeq=sp.h==="lr"?range(0,C):range(C-1,-1);
+  const out=[];
+  if(sp.p==="row"){for(const r of rowSeq)for(const c of colSeq)out.push([r,c]);}
+  else{for(const c of colSeq)for(const r of rowSeq)out.push([r,c]);}
+  return out;
+}
+function computeSlices(item){
+  if(!item)return [];
+  const {xs,ys}=cutFractions(item);const W=item.img.naturalWidth,H=item.img.naturalHeight;
+  const R=ys.length-1,C=xs.length-1;const out=[];
+  for(const pr of orderPairs(S.order,R,C)){
+    const r=pr[0],c=pr[1];
+    const x=Math.round(xs[c]*W),y=Math.round(ys[r]*H);
+    const w=Math.round(xs[c+1]*W)-x,h=Math.round(ys[r+1]*H)-y;
+    if(w>0&&h>0)out.push({x,y,w,h});
+  }
+  return out;
+}
+function sliceCanvas(item,s){const cv=document.createElement("canvas");cv.width=s.w;cv.height=s.h;cv.getContext("2d").drawImage(item.img,s.x,s.y,s.w,s.h,0,0,s.w,s.h);return cv;}
+
+// ---- numbering ----
+const startNum=()=>Math.max(0,parseInt($("#startNum").value)||0);
+const countOf=it=>computeSlices(it).length;
+const totalCount=()=>S.list.reduce((a,it)=>a+countOf(it),0);
+function offsetBefore(idx){let n=0;for(let k=0;k<idx;k++)n+=countOf(S.list[k]);return n;}
+function pad(n){const maxNum=startNum()+Math.max(totalCount()-1,0);const w=Math.max(Math.max(1,Math.min(8,parseInt($("#padLen").value)||4)),String(maxNum).length);return String(n).padStart(w,"0");}
+const fileName=num=>($("#namePrefix").value||"")+pad(num);
+
+// ---- render preview + overlay + tiles ----
+function sRender(){
+  const it=activeItem();if(!it)return;
+  const ov=$("#gridOverlay"),imgEl=$("#splitImg");
+  const dw=imgEl.clientWidth||1,dh=imgEl.clientHeight||1;
+  ov.setAttribute("viewBox",`0 0 ${dw} ${dh}`);ov.setAttribute("width",dw);ov.setAttribute("height",dh);
+  [...$("#splitEdit").querySelectorAll(".cutline")].forEach(e=>e.remove());
+  const {xs,ys}=cutFractions(it);
+  if(S.mode==="free"){
+    ov.innerHTML="";
+    it.vlines.forEach((v,i)=>makeLine("v",i));
+    it.hlines.forEach((v,i)=>makeLine("h",i));
+  }else{
+    let html="";
+    xs.slice(1,-1).forEach(x=>html+=`<line x1="${x*dw}" y1="0" x2="${x*dw}" y2="${dh}"/>`);
+    ys.slice(1,-1).forEach(y=>html+=`<line x1="0" y1="${y*dh}" x2="${dw}" y2="${y*dh}"/>`);
+    ov.innerHTML=html;
+  }
+  $("#sCount").textContent=totalCount();
+  $("#splitHint").textContent=S.list.length>1?`预览第 ${S.active+1}/${S.list.length} 张 · 本张编号 ${pad(startNum()+offsetBefore(S.active))} 起`:"";
+  renderTiles(it);
+}
+function makeLine(axis,idx){
+  const it=activeItem();const edit=$("#splitEdit");const imgEl=$("#splitImg");
+  const dw=imgEl.clientWidth,dh=imgEl.clientHeight;
+  const arr=axis==="v"?it.vlines:it.hlines;const frac=arr[idx];
+  const nat=axis==="v"?it.img.naturalWidth:it.img.naturalHeight;
+  const el=document.createElement("div");el.className="cutline "+axis;
+  if(axis==="v")el.style.left=(frac*dw)+"px";else el.style.top=(frac*dh)+"px";
+  el.innerHTML=`<span class="grip">${Math.round(frac*nat)}px</span><span class="x">✕</span>`;
+  el.querySelector(".x").onclick=ev=>{ev.stopPropagation();arr.splice(idx,1);sRender();};
+  el.onpointerdown=ev=>{
+    if(ev.target.classList.contains("x"))return;
+    ev.preventDefault();el.setPointerCapture(ev.pointerId);
+    const rect=imgEl.getBoundingClientRect();
+    const move=e=>{let f=axis==="v"?(e.clientX-rect.left)/rect.width:(e.clientY-rect.top)/rect.height;f=Math.max(0.005,Math.min(0.995,f));arr[idx]=f;
+      if(axis==="v")el.style.left=(f*dw)+"px";else el.style.top=(f*dh)+"px";
+      el.querySelector(".grip").textContent=Math.round(f*nat)+"px";
+      $("#sCount").textContent=totalCount();renderTilesNow(it);};
+    const up=()=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",up);arr.sort((a,b)=>a-b);sRender();};
+    document.addEventListener("pointermove",move);document.addEventListener("pointerup",up);
+  };
+  edit.appendChild(el);
+}
+let tileTimer;
+function renderTiles(item){clearTimeout(tileTimer);tileTimer=setTimeout(()=>renderTilesNow(item),120);}
+function renderTilesNow(item){
+  const box=$("#tiles");box.innerHTML="";
+  const slices=computeSlices(item);
+  const {xs}=cutFractions(item);const cols=Math.max(1,Math.min(xs.length-1,6));
+  box.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  const base=startNum()+offsetBefore(S.active);
+  slices.forEach((s,i)=>{
+    const num=base+i,label=pad(num);
+    const cv=sliceCanvas(item,s);const url=cv.toDataURL("image/png");
+    const t=document.createElement("div");t.className="tile";
+    t.innerHTML=`<span class="tn">${label}</span><img src="${url}"><div class="tb"><span>${s.w}×${s.h}</span><button title="单独下载这张">⬇</button></div>`;
+    t.querySelector("button").onclick=()=>{const u=S.fmt==="png"?url:cv.toDataURL("image/jpeg",.92);download(u,fileName(num)+(S.fmt==="png"?".png":".jpg"));};
+    box.appendChild(t);
+  });
+}
+
+// ---- 下载方式 ----
+S.dl="zip";
+$$("#dlSeg button").forEach(b=>b.onclick=()=>{$$("#dlSeg button").forEach(x=>x.classList.toggle("on",x===b));S.dl=b.dataset.dl;});
+
+// ---- 内置轻量 ZIP 打包器（store 模式，无外部依赖） ----
+const CRC_TABLE=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}return t;})();
+function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRC_TABLE[(c^u8[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function buildZip(entries){ // entries:[{name, data:Uint8Array}]
+  const enc=new TextEncoder();const parts=[],central=[];let offset=0;
+  for(const e of entries){
+    const nb=enc.encode(e.name),crc=crc32(e.data),size=e.data.length;
+    const lh=new Uint8Array(30+nb.length),dv=new DataView(lh.buffer);
+    dv.setUint32(0,0x04034b50,true);dv.setUint16(4,20,true);dv.setUint16(6,0x0800,true);dv.setUint16(8,0,true);
+    dv.setUint16(10,0,true);dv.setUint16(12,0x21,true);dv.setUint32(14,crc,true);dv.setUint32(18,size,true);
+    dv.setUint32(22,size,true);dv.setUint16(26,nb.length,true);dv.setUint16(28,0,true);lh.set(nb,30);
+    parts.push(lh,e.data);
+    const ch=new Uint8Array(46+nb.length),cv=new DataView(ch.buffer);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);cv.setUint16(8,0x0800,true);
+    cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0x21,true);cv.setUint32(16,crc,true);
+    cv.setUint32(20,size,true);cv.setUint32(24,size,true);cv.setUint16(28,nb.length,true);cv.setUint32(42,offset,true);
+    ch.set(nb,46);central.push(ch);
+    offset+=lh.length+size;
+  }
+  const cdSize=central.reduce((a,c)=>a+c.length,0);
+  const eo=new Uint8Array(22),ev=new DataView(eo.buffer);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(8,entries.length,true);ev.setUint16(10,entries.length,true);
+  ev.setUint32(12,cdSize,true);ev.setUint32(16,offset,true);
+  return new Blob([...parts,...central,eo],{type:"application/zip"});
+}
+function sliceToBytes(item,s){return new Promise(res=>{const cv=sliceCanvas(item,s);cv.toBlob(async b=>res(new Uint8Array(await b.arrayBuffer())),S.fmt==="png"?"image/png":"image/jpeg",.92);});}
+
+// ---- export all (continuous numbering across images) ----
+$("#exportAll").onclick=async()=>{
+  if(!S.list.length)return toast("请先添加图片","err");
+  const total=totalCount();if(!total)return toast("当前没有可切出的块","err");
+  const ext=S.fmt==="png"?".png":".jpg";
+  const btn=$("#exportAll");btn.disabled=true;
+  try{
+    if(S.dl==="each"){
+      let num=startNum(),done=0;
+      toast(`正在逐张导出 ${total} 张…`);
+      for(const item of S.list){
+        for(const s of computeSlices(item)){
+          const cv=sliceCanvas(item,s);
+          const url=S.fmt==="png"?cv.toDataURL("image/png"):cv.toDataURL("image/jpeg",.92);
+          download(url,fileName(num)+ext);num++;done++;
+          await new Promise(r=>setTimeout(r,220));
+        }
+      }
+      toast(`已导出 ${done} 张切块`,"ok");
+    }else{
+      // 打包 ZIP
+      const entries=[];let num=startNum(),done=0;
+      btn.textContent=`打包中… 0/${total}`;
+      for(const item of S.list){
+        for(const s of computeSlices(item)){
+          entries.push({name:fileName(num)+ext,data:await sliceToBytes(item,s)});
+          num++;done++;
+          if(done%5===0){btn.textContent=`打包中… ${done}/${total}`;await new Promise(r=>setTimeout(r,0));}
+        }
+      }
+      btn.textContent="生成压缩包…";await new Promise(r=>setTimeout(r,0));
+      const zip=buildZip(entries);
+      const url=URL.createObjectURL(zip);
+      download(url,`${($("#namePrefix").value||"切图")}_${ts()}.zip`);
+      setTimeout(()=>URL.revokeObjectURL(url),5000);
+      const mb=(zip.size/1048576).toFixed(1);
+      toast(`已打包 ${total} 张为 ZIP（约 ${mb} MB）`,"ok");
+    }
+  }catch(err){toast("导出出错："+err.message,"err");}
+  finally{btn.disabled=false;btn.textContent="⬇ 导出全部切块";}
+};
+
+/* ===================== drag & drop + paste ===================== */
+function setupDrop(zoneId,handler){
+  const z=$(zoneId);
+  ["dragenter","dragover"].forEach(ev=>z.addEventListener(ev,e=>{e.preventDefault();z.classList.add("drag");}));
+  ["dragleave","drop"].forEach(ev=>z.addEventListener(ev,e=>{e.preventDefault();if(ev!=="drop"||!z.contains(e.relatedTarget))z.classList.remove("drag");}));
+  z.addEventListener("drop",e=>{e.preventDefault();z.classList.remove("drag");if(e.dataTransfer.files.length)readFiles(e.dataTransfer.files).then(handler);});
+}
+setupDrop("#mergeDrop",mAdd);
+setupDrop("#splitDrop",r=>addSplitImages(r,false));
+document.addEventListener("paste",e=>{
+  const items=[...(e.clipboardData?.items||[])].filter(i=>i.type.startsWith("image/"));
+  if(!items.length)return;
+  const files=items.map(i=>i.getAsFile()).filter(Boolean);
+  readFiles(files).then(r=>{if(mode==="merge")mAdd(r);else addSplitImages(r,false);});
+});
+window.addEventListener("resize",()=>{if(mode==="split"&&activeItem())sRender();});
+$("#splitImg").onload=()=>{if(activeItem())sRender();};
+
+updateMergeOrderUI();
+mRender();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# OS junk
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Test images / output that shouldn't be versioned
+*.tmp
