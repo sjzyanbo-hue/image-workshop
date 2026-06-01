@@ -504,7 +504,7 @@ const LANG={
   tipSize:"不足一块的边缘也会单独切出。",
   btnAddV:"+ 竖切线", btnAddH:"+ 横切线", btnClearLines:"清空当前图切线",
   tipFree:"切线针对<b>当前预览的图</b>，每张图各自记忆。拖动调整、点红 × 删除。适合拼版扫描、漫画分格等不规则版面。",
-  g03split:"输出", labelFilename:"文件名", phNamePrefix:"可留空，仅编号",
+  g03split:"输出", labelFilename:"文件名", phNamePrefix:"可留空，仅编号", defaultPrefix:"切图",
   labelStart:"起始号", tipPadLen:"补零位数", labelNumOrderBr:"编号<br>顺序",
   labelDownload:"下载方式", dlZip:"打包 ZIP", dlEach:"逐张下载",
   btnExportAll:"⬇ 导出全部切块",
@@ -558,7 +558,7 @@ const LANG={
   tipSize:"Edge remainders smaller than a tile are also cut out.",
   btnAddV:"+ Vertical", btnAddH:"+ Horizontal", btnClearLines:"Clear lines on this image",
   tipFree:"Guides apply to <b>the previewed image</b>, remembered per image. Drag to adjust, click the red × to delete. Good for scanned layouts, comic panels and other irregular pages.",
-  g03split:"Output", labelFilename:"Filename", phNamePrefix:"Leave empty for numbers only",
+  g03split:"Output", labelFilename:"Filename", phNamePrefix:"Leave empty for numbers only", defaultPrefix:"tile",
   labelStart:"Start #", tipPadLen:"zero-pad digits", labelNumOrderBr:"Number<br>order",
   labelDownload:"Download", dlZip:"ZIP", dlEach:"One by one",
   btnExportAll:"⬇ Export all tiles",
@@ -585,6 +585,7 @@ const LANG={
 let savedLang=null; try{savedLang=localStorage.getItem("iw_lang");}catch(e){}
 let LANGCODE=savedLang||((navigator.language||"").toLowerCase().startsWith("en")?"en":"zh");
 if(LANGCODE!=="en"&&LANGCODE!=="zh")LANGCODE="zh";
+let prefixDirty=false; // 用户是否手动改过分离导出的文件名
 function tr(key,params){
   const d=LANG[LANGCODE]||LANG.zh; let v=d[key]; if(v==null)v=LANG.zh[key]; if(v==null)return key;
   return typeof v==="function"?v(params||{}):v;
@@ -595,6 +596,8 @@ function applyI18n(){
   document.documentElement.lang=LANGCODE==="en"?"en":"zh-CN";
   document.title=tr("title");
   const lb=document.getElementById("langBtn"); if(lb)lb.textContent=tr("langBtn");
+  // 文件名未被用户改动时，跟随语言切换默认值
+  const np=document.getElementById("namePrefix"); if(np&&!prefixDirty)np.value=tr("defaultPrefix");
 }
 function setLang(code){
   LANGCODE=(code==="en")?"en":"zh";
@@ -860,7 +863,7 @@ $("#splitMode").onchange=e=>{S.mode=e.target.value;
   sRender();};
 ["#rows","#cols","#nParts","#tileW","#tileH","#startNum","#padLen"].forEach(id=>$(id).oninput=sRender);
 $("#orderSel").onchange=e=>{S.order=e.target.value;sRender();};
-$("#namePrefix").oninput=sRender;
+$("#namePrefix").oninput=()=>{prefixDirty=true;sRender();};
 $$("#sfmtSeg button").forEach(b=>b.onclick=()=>{$$("#sfmtSeg button").forEach(x=>x.classList.toggle("on",x===b));S.fmt=b.dataset.fmt;sRender();});
 $("#addV").onclick=()=>{const it=activeItem();if(!it)return;it.vlines.push(0.5);it.vlines.sort((a,b)=>a-b);sRender();};
 $("#addH").onclick=()=>{const it=activeItem();if(!it)return;it.hlines.push(0.5);it.hlines.sort((a,b)=>a-b);sRender();};
@@ -1039,7 +1042,7 @@ $("#exportAll").onclick=async()=>{
       btn.textContent=tr("btnZipping");await new Promise(r=>setTimeout(r,0));
       const zip=buildZip(entries);
       const url=URL.createObjectURL(zip);
-      download(url,`${($("#namePrefix").value||"切图")}_${ts()}.zip`);
+      download(url,`${($("#namePrefix").value||tr("defaultPrefix"))}_${ts()}.zip`);
       setTimeout(()=>URL.revokeObjectURL(url),5000);
       const mb=(zip.size/1048576).toFixed(1);
       toast(tr("toastZipDone",{n:total,mb}),"ok");
