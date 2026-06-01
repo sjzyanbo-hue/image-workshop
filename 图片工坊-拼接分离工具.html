@@ -189,218 +189,219 @@
 </head>
 <body>
 <header>
-  <div class="logo"><div class="mark"></div><div>图片工坊<br><small>LOCAL · OFFLINE · CANVAS</small></div></div>
+  <div class="logo"><div class="mark"></div><div><span data-i18n="brand">图片工坊</span><br><small>LOCAL · OFFLINE · CANVAS</small></div></div>
   <div class="tabs">
-    <button class="tab active" data-mode="merge"><span class="ic">▦</span>拼接 · 多合一</button>
-    <button class="tab" data-mode="split"><span class="ic">▤</span>分离 · 一变多</button>
+    <button class="tab active" data-mode="merge"><span class="ic">▦</span><span data-i18n="tabMerge">拼接 · 多合一</span></button>
+    <button class="tab" data-mode="split"><span class="ic">▤</span><span data-i18n="tabSplit">分离 · 一变多</span></button>
   </div>
   <div class="spacer"></div>
-  <div class="hint">所有处理在本机完成 · 不联网 · 不上传</div>
+  <button class="tab" id="langBtn" style="min-width:56px;justify-content:center" title="中文 / English">🌐 EN</button>
+  <div class="hint" data-i18n="headerHint">所有处理在本机完成 · 不联网 · 不上传</div>
 </header>
 
 <main>
   <!-- ============ MERGE SIDEBAR ============ -->
   <aside class="side" id="mergeSide">
     <div class="group">
-      <div class="gh"><span class="num">01</span>布局预设</div>
+      <div class="gh"><span class="num">01</span><span data-i18n="g01merge">布局预设</span></div>
       <div class="gb">
         <div class="preset-grid" id="layoutPresets">
           <div class="preset active" data-layout="hrow">
             <svg viewBox="0 0 40 30"><rect x="2" y="6" width="10" height="18" fill="#ffb020"/><rect x="15" y="6" width="10" height="18" fill="#6b7280"/><rect x="28" y="6" width="10" height="18" fill="#6b7280"/></svg>
-            <span>横向一排</span>
+            <span data-i18n="presetHrow">横向一排</span>
           </div>
           <div class="preset" data-layout="vcol">
             <svg viewBox="0 0 40 30"><rect x="10" y="2" width="20" height="6" fill="#ffb020"/><rect x="10" y="10" width="20" height="6" fill="#6b7280"/><rect x="10" y="18" width="20" height="6" fill="#6b7280"/></svg>
-            <span>纵向一列</span>
+            <span data-i18n="presetVcol">纵向一列</span>
           </div>
           <div class="preset" data-layout="grid">
             <svg viewBox="0 0 40 30"><rect x="6" y="4" width="12" height="10" fill="#ffb020"/><rect x="22" y="4" width="12" height="10" fill="#6b7280"/><rect x="6" y="17" width="12" height="10" fill="#6b7280"/><rect x="22" y="17" width="12" height="10" fill="#6b7280"/></svg>
-            <span>网格矩阵</span>
+            <span data-i18n="presetGrid">网格矩阵</span>
           </div>
           <div class="preset" data-layout="auto">
             <svg viewBox="0 0 40 30"><rect x="4" y="4" width="14" height="22" fill="#ffb020"/><rect x="21" y="4" width="15" height="10" fill="#6b7280"/><rect x="21" y="17" width="15" height="9" fill="#6b7280"/></svg>
-            <span>自动铺排</span>
+            <span data-i18n="presetAuto">自动铺排</span>
           </div>
         </div>
         <div class="row" id="gridDimRow" style="margin-top:10px;display:none">
-          <label>行 × 列</label>
+          <label data-i18n="labelRowCol">行 × 列</label>
           <input type="number" id="gridRows" value="0" min="0" max="20" placeholder="行" style="flex:1">
           <span style="color:var(--faint)">×</span>
           <input type="number" id="gridCols" value="2" min="0" max="20" placeholder="列" style="flex:1">
         </div>
-        <p class="tip" id="gridDimTip" style="display:none">填 <b>0</b> 表示自动。只填行或只填列，另一个按图片数自动计算。</p>
+        <p class="tip" id="gridDimTip" style="display:none" data-i18n="tipGridDim">填 <b>0</b> 表示自动。只填行或只填列，另一个按图片数自动计算。</p>
         <div class="divider" id="ordDivider" style="display:none"></div>
-        <div class="row" id="ordRowWrap" style="display:none"><label>置入顺序</label>
+        <div class="row" id="ordRowWrap" style="display:none"><label data-i18n="labelOrder">置入顺序</label>
           <div class="seg" id="ordRowSeg">
-            <button data-d="lr" class="on">从左到右</button>
-            <button data-d="rl">从右到左</button>
+            <button data-d="lr" class="on" data-i18n="dirLR">从左到右</button>
+            <button data-d="rl" data-i18n="dirRL">从右到左</button>
           </div>
         </div>
-        <div class="row" id="ordColWrap" style="display:none"><label>置入顺序</label>
+        <div class="row" id="ordColWrap" style="display:none"><label data-i18n="labelOrder">置入顺序</label>
           <div class="seg" id="ordColSeg">
-            <button data-d="tb" class="on">从上到下</button>
-            <button data-d="bt">从下到上</button>
+            <button data-d="tb" class="on" data-i18n="dirTB">从上到下</button>
+            <button data-d="bt" data-i18n="dirBT">从下到上</button>
           </div>
         </div>
-        <div class="row" id="ordGridWrap" style="display:none;align-items:flex-start"><label style="padding-top:7px">置入<br>顺序</label>
+        <div class="row" id="ordGridWrap" style="display:none;align-items:flex-start"><label style="padding-top:7px" data-i18n="labelOrderBr">置入<br>顺序</label>
           <select id="ordGridSel">
-            <option value="r_rl_tb">①先按行(右→左) 后按列(上→下)</option>
-            <option value="r_rl_bt">②先按行(右→左) 后按列(下→上)</option>
-            <option value="r_lr_tb" selected>③先按行(左→右) 后按列(上→下)</option>
-            <option value="r_lr_bt">④先按行(左→右) 后按列(下→上)</option>
-            <option value="c_tb_rl">⑤先按列(上→下) 后按行(右→左)</option>
-            <option value="c_tb_lr">⑥先按列(上→下) 后按行(左→右)</option>
-            <option value="c_bt_rl">⑦先按列(下→上) 后按行(右→左)</option>
-            <option value="c_bt_lr">⑧先按列(下→上) 后按行(左→右)</option>
+            <option value="r_rl_tb" data-i18n="ord1">①先按行(右→左) 后按列(上→下)</option>
+            <option value="r_rl_bt" data-i18n="ord2">②先按行(右→左) 后按列(下→上)</option>
+            <option value="r_lr_tb" selected data-i18n="ord3">③先按行(左→右) 后按列(上→下)</option>
+            <option value="r_lr_bt" data-i18n="ord4">④先按行(左→右) 后按列(下→上)</option>
+            <option value="c_tb_rl" data-i18n="ord5">⑤先按列(上→下) 后按行(右→左)</option>
+            <option value="c_tb_lr" data-i18n="ord6">⑥先按列(上→下) 后按行(左→右)</option>
+            <option value="c_bt_rl" data-i18n="ord7">⑦先按列(下→上) 后按行(右→左)</option>
+            <option value="c_bt_lr" data-i18n="ord8">⑧先按列(下→上) 后按行(左→右)</option>
           </select>
         </div>
       </div>
     </div>
 
     <div class="group">
-      <div class="gh"><span class="num">02</span>尺寸统一</div>
+      <div class="gh"><span class="num">02</span><span data-i18n="g02merge">尺寸统一</span></div>
       <div class="gb">
-        <div class="row"><label>对齐方式</label>
+        <div class="row"><label data-i18n="labelAlign">对齐方式</label>
           <select id="sizeMode">
-            <option value="height">统一高度（适合横排）</option>
-            <option value="width">统一宽度（适合竖排/长图）</option>
-            <option value="cell">统一单元格（适合网格）</option>
-            <option value="none">保持原始尺寸</option>
+            <option value="height" data-i18n="szHeight">统一高度（适合横排）</option>
+            <option value="width" data-i18n="szWidth">统一宽度（适合竖排/长图）</option>
+            <option value="cell" data-i18n="szCell">统一单元格（适合网格）</option>
+            <option value="none" data-i18n="szNone">保持原始尺寸</option>
           </select>
         </div>
-        <div class="row"><label>基准</label>
+        <div class="row"><label data-i18n="labelRef">基准</label>
           <select id="refMode">
-            <option value="min">以最小图为准（更清晰）</option>
-            <option value="max">以最大图为准</option>
-            <option value="first">以第一张为准</option>
+            <option value="min" data-i18n="refMin">以最小图为准（更清晰）</option>
+            <option value="max" data-i18n="refMax">以最大图为准</option>
+            <option value="first" data-i18n="refFirst">以第一张为准</option>
           </select>
         </div>
-        <div class="row" id="fitRow"><label>填充</label>
+        <div class="row" id="fitRow"><label data-i18n="labelFit">填充</label>
           <div class="seg" id="fitSeg">
-            <button data-fit="contain" class="on">完整(留白)</button>
-            <button data-fit="cover">填满(裁切)</button>
-            <button data-fit="fill">拉伸</button>
+            <button data-fit="contain" class="on" data-i18n="fitContain">完整(留白)</button>
+            <button data-fit="cover" data-i18n="fitCover">填满(裁切)</button>
+            <button data-fit="fill" data-i18n="fitFill">拉伸</button>
           </div>
         </div>
       </div>
     </div>
 
     <div class="group">
-      <div class="gh"><span class="num">03</span>排版参数</div>
+      <div class="gh"><span class="num">03</span><span data-i18n="g03merge">排版参数</span></div>
       <div class="gb">
-        <div class="row"><label>间距</label><input type="range" id="gap" min="0" max="120" value="0"><span class="val" id="gapV">0px</span></div>
-        <div class="row"><label>外边距</label><input type="range" id="pad" min="0" max="200" value="0"><span class="val" id="padV">0px</span></div>
-        <div class="row"><label>圆角</label><input type="range" id="radius" min="0" max="80" value="0"><span class="val" id="radiusV">0px</span></div>
+        <div class="row"><label data-i18n="labelGap">间距</label><input type="range" id="gap" min="0" max="120" value="0"><span class="val" id="gapV">0px</span></div>
+        <div class="row"><label data-i18n="labelPad">外边距</label><input type="range" id="pad" min="0" max="200" value="0"><span class="val" id="padV">0px</span></div>
+        <div class="row"><label data-i18n="labelRadius">圆角</label><input type="range" id="radius" min="0" max="80" value="0"><span class="val" id="radiusV">0px</span></div>
         <div class="divider"></div>
-        <div class="row"><label>背景色</label>
+        <div class="row"><label data-i18n="labelBg">背景色</label>
           <input type="color" id="bgColor" value="#ffffff">
-          <label class="chk" style="min-width:auto"><input type="checkbox" id="bgTrans">透明</label>
+          <label class="chk" style="min-width:auto"><input type="checkbox" id="bgTrans"><span data-i18n="chkTrans">透明</span></label>
         </div>
       </div>
     </div>
 
     <div class="group">
-      <div class="gh"><span class="num">04</span>导出</div>
+      <div class="gh"><span class="num">04</span><span data-i18n="g04merge">导出</span></div>
       <div class="gb">
-        <div class="row"><label>格式</label>
+        <div class="row"><label data-i18n="labelFormat">格式</label>
           <div class="seg" id="fmtSeg">
             <button data-fmt="png" class="on">PNG</button>
             <button data-fmt="jpeg">JPG</button>
           </div>
         </div>
-        <div class="row" id="qualRow" style="display:none"><label>质量</label><input type="range" id="quality" min="50" max="100" value="92"><span class="val" id="qualV">92</span></div>
-        <button class="btn primary" id="exportMerge">⬇ 导出拼接图</button>
+        <div class="row" id="qualRow" style="display:none"><label data-i18n="labelQuality">质量</label><input type="range" id="quality" min="50" max="100" value="92"><span class="val" id="qualV">92</span></div>
+        <button class="btn primary" id="exportMerge" data-i18n="btnExportMerge">⬇ 导出拼接图</button>
       </div>
     </div>
-    <button class="btn ghost" id="clearMerge">清空全部图片</button>
+    <button class="btn ghost" id="clearMerge" data-i18n="btnClearAll">清空全部图片</button>
   </aside>
 
   <!-- ============ SPLIT SIDEBAR ============ -->
   <aside class="side hidden" id="splitSide">
     <div class="group">
-      <div class="gh"><span class="num">01</span>图片源</div>
+      <div class="gh"><span class="num">01</span><span data-i18n="g01split">图片源</span></div>
       <div class="gb">
         <div class="row" style="gap:8px">
-          <button class="btn btn-sm" id="addFolderBtn" style="flex:1">📁 选择文件夹</button>
-          <button class="btn btn-sm" id="addFilesBtn" style="flex:1">＋ 逐张添加</button>
+          <button class="btn btn-sm" id="addFolderBtn" style="flex:1" data-i18n="btnFolder">📁 选择文件夹</button>
+          <button class="btn btn-sm" id="addFilesBtn" style="flex:1" data-i18n="btnAddFiles">＋ 逐张添加</button>
         </div>
-        <p class="tip">文件夹：自动加载其中所有图片，按<b>文件名</b>排序。逐张添加：按<b>加入顺序</b>排列。可混用，底部缩略图条可拖动改顺序。</p>
+        <p class="tip" data-i18n="tipSource">文件夹：自动加载其中所有图片，按<b>文件名</b>排序。逐张添加：按<b>加入顺序</b>排列。可混用，底部缩略图条可拖动改顺序。</p>
       </div>
     </div>
 
     <div class="group">
-      <div class="gh"><span class="num">02</span>切割模式<span class="tip" style="margin:0;font-weight:400;text-transform:none;letter-spacing:0">·应用到全部</span></div>
+      <div class="gh"><span class="num">02</span><span data-i18n="g02split">切割模式</span><span class="tip" style="margin:0;font-weight:400;text-transform:none;letter-spacing:0" data-i18n="g02splitNote">·应用到全部</span></div>
       <div class="gb">
-        <div class="row"><label>模式</label>
+        <div class="row"><label data-i18n="labelMode">模式</label>
           <select id="splitMode">
-            <option value="grid">等分网格（行×列）</option>
-            <option value="hcut">横向切 N 份</option>
-            <option value="vcut">竖向切 N 份</option>
-            <option value="size">按固定尺寸切块</option>
-            <option value="free">自定义切线（每图独立）</option>
+            <option value="grid" data-i18n="smGrid">等分网格（行×列）</option>
+            <option value="hcut" data-i18n="smHcut">横向切 N 份</option>
+            <option value="vcut" data-i18n="smVcut">竖向切 N 份</option>
+            <option value="size" data-i18n="smSize">按固定尺寸切块</option>
+            <option value="free" data-i18n="smFree">自定义切线（每图独立）</option>
           </select>
         </div>
         <div id="paramGrid">
-          <div class="row"><label>行数</label><input type="number" id="rows" value="2" min="1" max="50"></div>
-          <div class="row"><label>列数</label><input type="number" id="cols" value="2" min="1" max="50"></div>
+          <div class="row"><label data-i18n="labelRows">行数</label><input type="number" id="rows" value="2" min="1" max="50"></div>
+          <div class="row"><label data-i18n="labelCols">列数</label><input type="number" id="cols" value="2" min="1" max="50"></div>
         </div>
         <div id="paramN" style="display:none">
-          <div class="row"><label>份数</label><input type="number" id="nParts" value="3" min="2" max="100"></div>
+          <div class="row"><label data-i18n="labelParts">份数</label><input type="number" id="nParts" value="3" min="2" max="100"></div>
         </div>
         <div id="paramSize" style="display:none">
-          <div class="row"><label>块宽</label><input type="number" id="tileW" value="500" min="10"><span class="tip" style="margin:0">px</span></div>
-          <div class="row"><label>块高</label><input type="number" id="tileH" value="500" min="10"><span class="tip" style="margin:0">px</span></div>
-          <p class="tip">不足一块的边缘也会单独切出。</p>
+          <div class="row"><label data-i18n="labelTileW">块宽</label><input type="number" id="tileW" value="500" min="10"><span class="tip" style="margin:0">px</span></div>
+          <div class="row"><label data-i18n="labelTileH">块高</label><input type="number" id="tileH" value="500" min="10"><span class="tip" style="margin:0">px</span></div>
+          <p class="tip" data-i18n="tipSize">不足一块的边缘也会单独切出。</p>
         </div>
         <div id="paramFree" style="display:none">
           <div class="row" style="gap:6px">
-            <button class="btn btn-sm" id="addV">+ 竖切线</button>
-            <button class="btn btn-sm" id="addH">+ 横切线</button>
+            <button class="btn btn-sm" id="addV" data-i18n="btnAddV">+ 竖切线</button>
+            <button class="btn btn-sm" id="addH" data-i18n="btnAddH">+ 横切线</button>
           </div>
-          <button class="btn btn-sm ghost" id="clearLines" style="width:100%;margin-top:6px">清空当前图切线</button>
-          <p class="tip">切线针对<b>当前预览的图</b>，每张图各自记忆。拖动调整、点红 × 删除。适合拼版扫描、漫画分格等不规则版面。</p>
+          <button class="btn btn-sm ghost" id="clearLines" style="width:100%;margin-top:6px" data-i18n="btnClearLines">清空当前图切线</button>
+          <p class="tip" data-i18n="tipFree">切线针对<b>当前预览的图</b>，每张图各自记忆。拖动调整、点红 × 删除。适合拼版扫描、漫画分格等不规则版面。</p>
         </div>
       </div>
     </div>
 
     <div class="group">
-      <div class="gh"><span class="num">03</span>输出</div>
+      <div class="gh"><span class="num">03</span><span data-i18n="g03split">输出</span></div>
       <div class="gb">
-        <div class="row"><label>文件名</label><input type="text" id="namePrefix" value="切图" placeholder="可留空，仅编号"></div>
-        <div class="row"><label>起始号</label>
+        <div class="row"><label data-i18n="labelFilename">文件名</label><input type="text" id="namePrefix" value="切图" placeholder="可留空，仅编号" data-i18n-ph="phNamePrefix"></div>
+        <div class="row"><label data-i18n="labelStart">起始号</label>
           <input type="number" id="startNum" value="1" min="0" style="flex:0 0 70px">
-          <span class="tip" style="margin:0">补零位数</span>
+          <span class="tip" style="margin:0" data-i18n="tipPadLen">补零位数</span>
           <input type="number" id="padLen" value="4" min="1" max="8" style="flex:0 0 56px">
         </div>
-        <div class="row" style="align-items:flex-start"><label style="padding-top:7px">编号<br>顺序</label>
+        <div class="row" style="align-items:flex-start"><label style="padding-top:7px" data-i18n="labelNumOrderBr">编号<br>顺序</label>
           <select id="orderSel">
-            <option value="r_rl_tb">①先按行(右→左) 后按列(上→下)</option>
-            <option value="r_rl_bt">②先按行(右→左) 后按列(下→上)</option>
-            <option value="r_lr_tb" selected>③先按行(左→右) 后按列(上→下)</option>
-            <option value="r_lr_bt">④先按行(左→右) 后按列(下→上)</option>
-            <option value="c_tb_rl">⑤先按列(上→下) 后按行(右→左)</option>
-            <option value="c_tb_lr">⑥先按列(上→下) 后按行(左→右)</option>
-            <option value="c_bt_rl">⑦先按列(下→上) 后按行(右→左)</option>
-            <option value="c_bt_lr">⑧先按列(下→上) 后按行(左→右)</option>
+            <option value="r_rl_tb" data-i18n="ord1">①先按行(右→左) 后按列(上→下)</option>
+            <option value="r_rl_bt" data-i18n="ord2">②先按行(右→左) 后按列(下→上)</option>
+            <option value="r_lr_tb" selected data-i18n="ord3">③先按行(左→右) 后按列(上→下)</option>
+            <option value="r_lr_bt" data-i18n="ord4">④先按行(左→右) 后按列(下→上)</option>
+            <option value="c_tb_rl" data-i18n="ord5">⑤先按列(上→下) 后按行(右→左)</option>
+            <option value="c_tb_lr" data-i18n="ord6">⑥先按列(上→下) 后按行(左→右)</option>
+            <option value="c_bt_rl" data-i18n="ord7">⑦先按列(下→上) 后按行(右→左)</option>
+            <option value="c_bt_lr" data-i18n="ord8">⑧先按列(下→上) 后按行(左→右)</option>
           </select>
         </div>
-        <div class="row"><label>格式</label>
+        <div class="row"><label data-i18n="labelFormat">格式</label>
           <div class="seg" id="sfmtSeg">
             <button data-fmt="png" class="on">PNG</button>
             <button data-fmt="jpeg">JPG</button>
           </div>
         </div>
-        <div class="row"><label>下载方式</label>
+        <div class="row"><label data-i18n="labelDownload">下载方式</label>
           <div class="seg" id="dlSeg">
-            <button data-dl="zip" class="on">打包 ZIP</button>
-            <button data-dl="each">逐张下载</button>
+            <button data-dl="zip" class="on" data-i18n="dlZip">打包 ZIP</button>
+            <button data-dl="each" data-i18n="dlEach">逐张下载</button>
           </div>
         </div>
-        <button class="btn primary" id="exportAll" style="margin-top:4px">⬇ 导出全部切块</button>
-        <p class="tip">多张图按缩略图条顺序<b>连续编号</b>。<b>打包 ZIP</b>：上百张也只下载一个压缩包，解压即得全部图片（推荐）。逐张下载适合数量很少时。</p>
+        <button class="btn primary" id="exportAll" style="margin-top:4px" data-i18n="btnExportAll">⬇ 导出全部切块</button>
+        <p class="tip" data-i18n="tipOutput">多张图按缩略图条顺序<b>连续编号</b>。<b>打包 ZIP</b>：上百张也只下载一个压缩包，解压即得全部图片（推荐）。逐张下载适合数量很少时。</p>
       </div>
     </div>
-    <button class="btn ghost" id="clearSplit">清空全部图片</button>
+    <button class="btn ghost" id="clearSplit" data-i18n="btnClearAll">清空全部图片</button>
   </aside>
 
   <!-- ============ STAGE ============ -->
@@ -408,16 +409,16 @@
     <!-- MERGE STAGE -->
     <div id="mergeStage" style="display:flex;flex-direction:column;flex:1;min-height:0">
       <div class="stage-head">
-        <span class="stat">图片 <b id="mCount">0</b> 张</span>
-        <span class="stat">成图 <b id="mSize">—</b></span>
+        <span class="stat"><span data-i18n="statImg">图片</span> <b id="mCount">0</b> <span data-i18n="unitImg">张</span></span>
+        <span class="stat"><span data-i18n="statResult">成图</span> <b id="mSize">—</b></span>
         <div class="spacer"></div>
-        <span class="hint">拖动下方缩略图可调整顺序</span>
+        <span class="hint" data-i18n="hintMergeDrag">拖动下方缩略图可调整顺序</span>
       </div>
       <div class="preview-wrap" id="mergeDrop">
         <div class="empty" id="mergeEmpty">
           <div class="big">＋</div>
-          <h3>添加图片开始拼接</h3>
-          <p>点击下方 ＋，或把图片<b>拖进来</b>，或直接 <kbd>Ctrl</kbd>+<kbd>V</kbd> 粘贴</p>
+          <h3 data-i18n="emptyMergeH">添加图片开始拼接</h3>
+          <p data-i18n="emptyMergeP">点击下方 ＋，或把图片<b>拖进来</b>，或直接 <kbd>Ctrl</kbd>+<kbd>V</kbd> 粘贴</p>
         </div>
         <canvas id="mergeCanvas" class="hidden"></canvas>
       </div>
@@ -429,17 +430,17 @@
     <!-- SPLIT STAGE -->
     <div id="splitStage" style="display:none;flex-direction:column;flex:1;min-height:0">
       <div class="stage-head">
-        <span class="stat">图片 <b id="sImgCount">0</b> 张</span>
-        <span class="stat">当前 <b id="sDim">—</b></span>
-        <span class="stat">共切出 <b id="sCount">0</b> 块</span>
+        <span class="stat"><span data-i18n="statImg">图片</span> <b id="sImgCount">0</b> <span data-i18n="unitImg">张</span></span>
+        <span class="stat"><span data-i18n="statCurrent">当前</span> <b id="sDim">—</b></span>
+        <span class="stat"><span data-i18n="statTiles">共切出</span> <b id="sCount">0</b> <span data-i18n="unitTiles">块</span></span>
         <div class="spacer"></div>
-        <span class="hint" id="splitHint">添加图片开始</span>
+        <span class="hint" id="splitHint" data-i18n="hintAddStart">添加图片开始</span>
       </div>
       <div class="splitScroll" id="splitDrop">
         <div class="empty" id="splitEmpty">
           <div class="big">▤</div>
-          <h3>添加图片开始切分</h3>
-          <p>点左侧「选择文件夹 / 逐张添加」，或把图片<b>拖进来</b>，或 <kbd>Ctrl</kbd>+<kbd>V</kbd> 粘贴（可多张）</p>
+          <h3 data-i18n="emptySplitH">添加图片开始切分</h3>
+          <p data-i18n="emptySplitP">点左侧「选择文件夹 / 逐张添加」，或把图片<b>拖进来</b>，或 <kbd>Ctrl</kbd>+<kbd>V</kbd> 粘贴（可多张）</p>
         </div>
         <div id="splitMain" class="hidden">
           <div class="splitEdit" id="splitEdit">
@@ -469,6 +470,139 @@ function toast(msg,type){const t=$("#toast");t.textContent=msg;t.className="show
 function loadImage(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src;});}
 function readFiles(files){return Promise.all([...files].filter(f=>f.type.startsWith("image/")).map(f=>new Promise(res=>{const r=new FileReader();r.onload=e=>loadImage(e.target.result).then(img=>res({img,name:f.name})).catch(()=>res(null));r.readAsDataURL(f);})));}
 const ts=()=>{const d=new Date(),p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;};
+
+/* ===================== i18n（中英双语） ===================== */
+const LANG={
+ zh:{
+  title:"图片工坊 · 拼接 / 分离",
+  brand:"图片工坊",
+  tabMerge:"拼接 · 多合一", tabSplit:"分离 · 一变多",
+  headerHint:"所有处理在本机完成 · 不联网 · 不上传",
+  g01merge:"布局预设",
+  presetHrow:"横向一排", presetVcol:"纵向一列", presetGrid:"网格矩阵", presetAuto:"自动铺排",
+  labelRowCol:"行 × 列",
+  tipGridDim:"填 <b>0</b> 表示自动。只填行或只填列，另一个按图片数自动计算。",
+  labelOrder:"置入顺序", labelOrderBr:"置入<br>顺序",
+  dirLR:"从左到右", dirRL:"从右到左", dirTB:"从上到下", dirBT:"从下到上",
+  ord1:"①先按行(右→左) 后按列(上→下)", ord2:"②先按行(右→左) 后按列(下→上)",
+  ord3:"③先按行(左→右) 后按列(上→下)", ord4:"④先按行(左→右) 后按列(下→上)",
+  ord5:"⑤先按列(上→下) 后按行(右→左)", ord6:"⑥先按列(上→下) 后按行(左→右)",
+  ord7:"⑦先按列(下→上) 后按行(右→左)", ord8:"⑧先按列(下→上) 后按行(左→右)",
+  g02merge:"尺寸统一", labelAlign:"对齐方式",
+  szHeight:"统一高度（适合横排）", szWidth:"统一宽度（适合竖排/长图）", szCell:"统一单元格（适合网格）", szNone:"保持原始尺寸",
+  labelRef:"基准", refMin:"以最小图为准（更清晰）", refMax:"以最大图为准", refFirst:"以第一张为准",
+  labelFit:"填充", fitContain:"完整(留白)", fitCover:"填满(裁切)", fitFill:"拉伸",
+  g03merge:"排版参数",
+  labelGap:"间距", labelPad:"外边距", labelRadius:"圆角", labelBg:"背景色", chkTrans:"透明",
+  g04merge:"导出", labelFormat:"格式", labelQuality:"质量",
+  btnExportMerge:"⬇ 导出拼接图", btnClearAll:"清空全部图片",
+  g01split:"图片源", btnFolder:"📁 选择文件夹", btnAddFiles:"＋ 逐张添加",
+  tipSource:"文件夹：自动加载其中所有图片，按<b>文件名</b>排序。逐张添加：按<b>加入顺序</b>排列。可混用，底部缩略图条可拖动改顺序。",
+  g02split:"切割模式", g02splitNote:"·应用到全部", labelMode:"模式",
+  smGrid:"等分网格（行×列）", smHcut:"横向切 N 份", smVcut:"竖向切 N 份", smSize:"按固定尺寸切块", smFree:"自定义切线（每图独立）",
+  labelRows:"行数", labelCols:"列数", labelParts:"份数", labelTileW:"块宽", labelTileH:"块高",
+  tipSize:"不足一块的边缘也会单独切出。",
+  btnAddV:"+ 竖切线", btnAddH:"+ 横切线", btnClearLines:"清空当前图切线",
+  tipFree:"切线针对<b>当前预览的图</b>，每张图各自记忆。拖动调整、点红 × 删除。适合拼版扫描、漫画分格等不规则版面。",
+  g03split:"输出", labelFilename:"文件名", phNamePrefix:"可留空，仅编号",
+  labelStart:"起始号", tipPadLen:"补零位数", labelNumOrderBr:"编号<br>顺序",
+  labelDownload:"下载方式", dlZip:"打包 ZIP", dlEach:"逐张下载",
+  btnExportAll:"⬇ 导出全部切块",
+  tipOutput:"多张图按缩略图条顺序<b>连续编号</b>。<b>打包 ZIP</b>：上百张也只下载一个压缩包，解压即得全部图片（推荐）。逐张下载适合数量很少时。",
+  statImg:"图片", unitImg:"张", statResult:"成图", statCurrent:"当前", statTiles:"共切出", unitTiles:"块",
+  hintMergeDrag:"拖动下方缩略图可调整顺序",
+  emptyMergeH:"添加图片开始拼接",
+  emptyMergeP:"点击下方 ＋，或把图片<b>拖进来</b>，或直接 <kbd>Ctrl</kbd>+<kbd>V</kbd> 粘贴",
+  emptySplitH:"添加图片开始切分",
+  emptySplitP:"点左侧「选择文件夹 / 逐张添加」，或把图片<b>拖进来</b>，或 <kbd>Ctrl</kbd>+<kbd>V</kbd> 粘贴（可多张）",
+  hintAddStart:"添加图片开始",
+  toastNoImg:"请先添加图片", toastMergeDone:"已导出拼接图", toastNoSlice:"当前没有可切出的块",
+  toastExportingEach:p=>`正在逐张导出 ${p.n} 张…`,
+  toastExportedEach:p=>`已导出 ${p.n} 张切块`,
+  btnPacking:p=>`打包中… ${p.a}/${p.b}`,
+  btnZipping:"生成压缩包…",
+  toastZipDone:p=>`已打包 ${p.n} 张为 ZIP（约 ${p.mb} MB）`,
+  toastExportErr:"导出出错：",
+  hintPreview:p=>`预览第 ${p.cur}/${p.total} 张 · 本张编号 ${p.num} 起`,
+  titleRotate:"旋转", titleDup:"复制", titleDel:"删除", titleTileDl:"单独下载这张", titleSrcDel:"移除",
+  langBtn:"🌐 EN"
+ },
+ en:{
+  title:"Image Workshop · Merge / Split",
+  brand:"Image Workshop",
+  tabMerge:"Merge", tabSplit:"Split",
+  headerHint:"All processing is local · no network · no upload",
+  g01merge:"Layout",
+  presetHrow:"Row", presetVcol:"Column", presetGrid:"Grid", presetAuto:"Auto",
+  labelRowCol:"Rows × Cols",
+  tipGridDim:"Enter <b>0</b> for auto. Fill only rows or only cols and the other is computed from the image count.",
+  labelOrder:"Order", labelOrderBr:"Order",
+  dirLR:"L → R", dirRL:"R → L", dirTB:"T → B", dirBT:"B → T",
+  ord1:"① Rows (R→L), then cols (T→B)", ord2:"② Rows (R→L), then cols (B→T)",
+  ord3:"③ Rows (L→R), then cols (T→B)", ord4:"④ Rows (L→R), then cols (B→T)",
+  ord5:"⑤ Cols (T→B), then rows (R→L)", ord6:"⑥ Cols (T→B), then rows (L→R)",
+  ord7:"⑦ Cols (B→T), then rows (R→L)", ord8:"⑧ Cols (B→T), then rows (L→R)",
+  g02merge:"Unify size", labelAlign:"Align",
+  szHeight:"Match height (rows)", szWidth:"Match width (columns)", szCell:"Match cell (grid)", szNone:"Keep original",
+  labelRef:"Basis", refMin:"Smallest image (sharper)", refMax:"Largest image", refFirst:"First image",
+  labelFit:"Fit", fitContain:"Contain", fitCover:"Cover", fitFill:"Stretch",
+  g03merge:"Layout params",
+  labelGap:"Gap", labelPad:"Margin", labelRadius:"Radius", labelBg:"Background", chkTrans:"Transparent",
+  g04merge:"Export", labelFormat:"Format", labelQuality:"Quality",
+  btnExportMerge:"⬇ Export merged image", btnClearAll:"Clear all images",
+  g01split:"Source", btnFolder:"📁 Choose folder", btnAddFiles:"＋ Add files",
+  tipSource:"Folder: loads all images inside, sorted by <b>filename</b>. Add files: kept in <b>the order added</b>. Both can mix; drag thumbnails below to reorder.",
+  g02split:"Cut mode", g02splitNote:"· applies to all", labelMode:"Mode",
+  smGrid:"Even grid (rows×cols)", smHcut:"Cut into N rows", smVcut:"Cut into N columns", smSize:"Fixed-size tiles", smFree:"Custom guides (per image)",
+  labelRows:"Rows", labelCols:"Cols", labelParts:"Parts", labelTileW:"Tile W", labelTileH:"Tile H",
+  tipSize:"Edge remainders smaller than a tile are also cut out.",
+  btnAddV:"+ Vertical", btnAddH:"+ Horizontal", btnClearLines:"Clear lines on this image",
+  tipFree:"Guides apply to <b>the previewed image</b>, remembered per image. Drag to adjust, click the red × to delete. Good for scanned layouts, comic panels and other irregular pages.",
+  g03split:"Output", labelFilename:"Filename", phNamePrefix:"Leave empty for numbers only",
+  labelStart:"Start #", tipPadLen:"zero-pad digits", labelNumOrderBr:"Number<br>order",
+  labelDownload:"Download", dlZip:"ZIP", dlEach:"One by one",
+  btnExportAll:"⬇ Export all tiles",
+  tipOutput:"Multiple images are <b>numbered continuously</b> in thumbnail order. <b>ZIP</b>: even hundreds download as one archive — unzip to get them all (recommended). One-by-one suits very small counts.",
+  statImg:"Images", unitImg:"", statResult:"Result", statCurrent:"Current", statTiles:"Tiles", unitTiles:"",
+  hintMergeDrag:"Drag thumbnails below to reorder",
+  emptyMergeH:"Add images to start merging",
+  emptyMergeP:"Click ＋ below, <b>drag</b> images in, or paste with <kbd>Ctrl</kbd>+<kbd>V</kbd>",
+  emptySplitH:"Add images to start splitting",
+  emptySplitP:"Use the buttons on the left, <b>drag</b> images in, or paste with <kbd>Ctrl</kbd>+<kbd>V</kbd> (multiple ok)",
+  hintAddStart:"Add images to start",
+  toastNoImg:"Please add images first", toastMergeDone:"Merged image exported", toastNoSlice:"No tiles to export",
+  toastExportingEach:p=>`Exporting ${p.n} tiles…`,
+  toastExportedEach:p=>`Exported ${p.n} tiles`,
+  btnPacking:p=>`Packing… ${p.a}/${p.b}`,
+  btnZipping:"Creating zip…",
+  toastZipDone:p=>`Packed ${p.n} tiles into ZIP (~${p.mb} MB)`,
+  toastExportErr:"Export error: ",
+  hintPreview:p=>`Preview ${p.cur}/${p.total} · this image starts at ${p.num}`,
+  titleRotate:"Rotate", titleDup:"Duplicate", titleDel:"Delete", titleTileDl:"Download this tile", titleSrcDel:"Remove",
+  langBtn:"🌐 中文"
+ }
+};
+let savedLang=null; try{savedLang=localStorage.getItem("iw_lang");}catch(e){}
+let LANGCODE=savedLang||((navigator.language||"").toLowerCase().startsWith("en")?"en":"zh");
+if(LANGCODE!=="en"&&LANGCODE!=="zh")LANGCODE="zh";
+function tr(key,params){
+  const d=LANG[LANGCODE]||LANG.zh; let v=d[key]; if(v==null)v=LANG.zh[key]; if(v==null)return key;
+  return typeof v==="function"?v(params||{}):v;
+}
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{const s=tr(el.dataset.i18n);if(s!=null)el.innerHTML=s;});
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{const s=tr(el.dataset.i18nPh);if(s!=null)el.placeholder=s;});
+  document.documentElement.lang=LANGCODE==="en"?"en":"zh-CN";
+  document.title=tr("title");
+  const lb=document.getElementById("langBtn"); if(lb)lb.textContent=tr("langBtn");
+}
+function setLang(code){
+  LANGCODE=(code==="en")?"en":"zh";
+  try{localStorage.setItem("iw_lang",LANGCODE);}catch(e){}
+  applyI18n();
+  if(typeof mRender==="function")mRender();
+  if(typeof splitRefresh==="function")splitRefresh();
+}
 
 /* ===================== MODE SWITCH ===================== */
 let mode="merge";
@@ -625,7 +759,7 @@ function renderStrip(){
   M.imgs.forEach((o,i)=>{
     const t=document.createElement("div");t.className="thumb";t.draggable=true;
     t.innerHTML=`<span class="idx">${i+1}</span><img src="${o.img.src}" style="transform:rotate(${o.rot}deg)">
-      <div class="ops"><button data-a="rot" title="旋转">⟳</button><button data-a="dup" title="复制">⧉</button><button data-a="del" class="del" title="删除">✕</button></div>`;
+      <div class="ops"><button data-a="rot" title="${tr("titleRotate")}">⟳</button><button data-a="dup" title="${tr("titleDup")}">⧉</button><button data-a="del" class="del" title="${tr("titleDel")}">✕</button></div>`;
     t.querySelector('[data-a=rot]').onclick=ev=>{ev.stopPropagation();o.rot=(o.rot+90)%360;mRender();};
     t.querySelector('[data-a=dup]').onclick=ev=>{ev.stopPropagation();M.imgs.splice(i+1,0,{img:o.img,rot:o.rot});mRender();};
     t.querySelector('[data-a=del]').onclick=ev=>{ev.stopPropagation();M.imgs.splice(i,1);mRender();};
@@ -639,14 +773,14 @@ function renderStrip(){
 }
 
 $("#exportMerge").onclick=()=>{
-  if(!M.imgs.length)return toast("请先添加图片","err");
+  if(!M.imgs.length)return toast(tr("toastNoImg"),"err");
   const cv=$("#mergeCanvas");
   if(M.fmt==="jpeg"&&M.trans){/* jpeg no alpha */}
   let out=cv;
   if(M.fmt==="jpeg"){const tmp=document.createElement("canvas");tmp.width=cv.width;tmp.height=cv.height;const c=tmp.getContext("2d");c.fillStyle=M.trans?"#ffffff":M.bg;c.fillRect(0,0,cv.width,cv.height);c.drawImage(cv,0,0);out=tmp;}
   const url=out.toDataURL(M.fmt==="png"?"image/png":"image/jpeg",M.quality/100);
   download(url,`拼接_${ts()}.${M.fmt==="png"?"png":"jpg"}`);
-  toast("已导出拼接图","ok");
+  toast(tr("toastMergeDone"),"ok");
 };
 function download(url,name){const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();}
 
@@ -686,7 +820,7 @@ function splitRefresh(){
   $("#sImgCount").textContent=S.list.length;
   renderSrcStrip();
   if(has){if(S.active>=S.list.length)S.active=S.list.length-1;showActive();}
-  else{$("#sDim").textContent="—";$("#sCount").textContent="0";$("#splitHint").textContent="添加图片开始";}
+  else{$("#sDim").textContent="—";$("#sCount").textContent="0";$("#splitHint").textContent=tr("hintAddStart");}
 }
 function showActive(){
   const it=activeItem();if(!it)return;
@@ -705,7 +839,7 @@ function renderSrcStrip(){
   S.list.forEach((it,i)=>{
     const t=document.createElement("div");t.className="thumb"+(i===S.active?" active":"");t.draggable=true;
     t.innerHTML=`<span class="idx">${i+1}</span><img src="${it.img.src}"><span class="nm">${it.name}</span>
-      <div class="ops"><button data-a="del" class="del" title="移除">✕</button></div>`;
+      <div class="ops"><button data-a="del" class="del" title="${tr("titleSrcDel")}">✕</button></div>`;
     t.onclick=()=>{S.active=i;renderSrcStrip();showActive();};
     t.querySelector('[data-a=del]').onclick=ev=>{ev.stopPropagation();S.list.splice(i,1);if(S.active>=i&&S.active>0)S.active--;splitRefresh();};
     t.ondragstart=()=>{sDragIdx=i;t.classList.add("dragging");};
@@ -798,7 +932,7 @@ function sRender(){
     ov.innerHTML=html;
   }
   $("#sCount").textContent=totalCount();
-  $("#splitHint").textContent=S.list.length>1?`预览第 ${S.active+1}/${S.list.length} 张 · 本张编号 ${pad(startNum()+offsetBefore(S.active))} 起`:"";
+  $("#splitHint").textContent=S.list.length>1?tr("hintPreview",{cur:S.active+1,total:S.list.length,num:pad(startNum()+offsetBefore(S.active))}):"";
   renderTiles(it);
 }
 function makeLine(axis,idx){
@@ -835,7 +969,7 @@ function renderTilesNow(item){
     const num=base+i,label=pad(num);
     const cv=sliceCanvas(item,s);const url=cv.toDataURL("image/png");
     const t=document.createElement("div");t.className="tile";
-    t.innerHTML=`<span class="tn">${label}</span><img src="${url}"><div class="tb"><span>${s.w}×${s.h}</span><button title="单独下载这张">⬇</button></div>`;
+    t.innerHTML=`<span class="tn">${label}</span><img src="${url}"><div class="tb"><span>${s.w}×${s.h}</span><button title="${tr("titleTileDl")}">⬇</button></div>`;
     t.querySelector("button").onclick=()=>{const u=S.fmt==="png"?url:cv.toDataURL("image/jpeg",.92);download(u,fileName(num)+(S.fmt==="png"?".png":".jpg"));};
     box.appendChild(t);
   });
@@ -874,14 +1008,14 @@ function sliceToBytes(item,s){return new Promise(res=>{const cv=sliceCanvas(item
 
 // ---- export all (continuous numbering across images) ----
 $("#exportAll").onclick=async()=>{
-  if(!S.list.length)return toast("请先添加图片","err");
-  const total=totalCount();if(!total)return toast("当前没有可切出的块","err");
+  if(!S.list.length)return toast(tr("toastNoImg"),"err");
+  const total=totalCount();if(!total)return toast(tr("toastNoSlice"),"err");
   const ext=S.fmt==="png"?".png":".jpg";
   const btn=$("#exportAll");btn.disabled=true;
   try{
     if(S.dl==="each"){
       let num=startNum(),done=0;
-      toast(`正在逐张导出 ${total} 张…`);
+      toast(tr("toastExportingEach",{n:total}));
       for(const item of S.list){
         for(const s of computeSlices(item)){
           const cv=sliceCanvas(item,s);
@@ -890,28 +1024,28 @@ $("#exportAll").onclick=async()=>{
           await new Promise(r=>setTimeout(r,220));
         }
       }
-      toast(`已导出 ${done} 张切块`,"ok");
+      toast(tr("toastExportedEach",{n:done}),"ok");
     }else{
       // 打包 ZIP
       const entries=[];let num=startNum(),done=0;
-      btn.textContent=`打包中… 0/${total}`;
+      btn.textContent=tr("btnPacking",{a:0,b:total});
       for(const item of S.list){
         for(const s of computeSlices(item)){
           entries.push({name:fileName(num)+ext,data:await sliceToBytes(item,s)});
           num++;done++;
-          if(done%5===0){btn.textContent=`打包中… ${done}/${total}`;await new Promise(r=>setTimeout(r,0));}
+          if(done%5===0){btn.textContent=tr("btnPacking",{a:done,b:total});await new Promise(r=>setTimeout(r,0));}
         }
       }
-      btn.textContent="生成压缩包…";await new Promise(r=>setTimeout(r,0));
+      btn.textContent=tr("btnZipping");await new Promise(r=>setTimeout(r,0));
       const zip=buildZip(entries);
       const url=URL.createObjectURL(zip);
       download(url,`${($("#namePrefix").value||"切图")}_${ts()}.zip`);
       setTimeout(()=>URL.revokeObjectURL(url),5000);
       const mb=(zip.size/1048576).toFixed(1);
-      toast(`已打包 ${total} 张为 ZIP（约 ${mb} MB）`,"ok");
+      toast(tr("toastZipDone",{n:total,mb}),"ok");
     }
-  }catch(err){toast("导出出错："+err.message,"err");}
-  finally{btn.disabled=false;btn.textContent="⬇ 导出全部切块";}
+  }catch(err){toast(tr("toastExportErr")+err.message,"err");}
+  finally{btn.disabled=false;btn.textContent=tr("btnExportAll");}
 };
 
 /* ===================== drag & drop + paste ===================== */
@@ -934,6 +1068,10 @@ $("#splitImg").onload=()=>{if(activeItem())sRender();};
 
 updateMergeOrderUI();
 mRender();
+
+/* ===================== 语言切换 ===================== */
+$("#langBtn").onclick=()=>setLang(LANGCODE==="en"?"zh":"en");
+applyI18n();
 </script>
 </body>
 </html>
